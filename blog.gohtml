@@ -66,7 +66,7 @@
       );
       background-attachment: fixed; color: var(--fg);
       font-family: var(--font-mono);
-      font-size: 16px; 
+      font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased; padding: 3rem 1rem;
     }
@@ -99,7 +99,7 @@
     }
 
     #win-min:checked ~ .screensaver { opacity: 1; visibility: visible; }
-    
+
     #win-min:checked ~ .screensaver .sat-1,
     #win-min:checked ~ .screensaver .sat-2 {
       animation-play-state: running;
@@ -112,7 +112,7 @@
       border-radius: 2px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
-    
+
     .css-sat-body::before, .css-sat-body::after {
       content: ""; position: absolute;
       top: 3px; width: 35px; height: 10px;
@@ -237,6 +237,10 @@
       color: var(--fg); font-style: italic;
     }
 
+    pre, code {
+      font-family: var(--font-mono);
+    }
+
     pre {
       background-color: var(--code-bg); color: var(--fg);
       border: 1px solid var(--code-border); padding: 1rem;
@@ -258,7 +262,7 @@
       }
       .os-titlebar { display: none; }
       .os-content { padding: 1.5rem 1rem; }
-      pre { font-size: 0.85rem; padding: 0.85rem; } 
+      pre { font-size: 0.85rem; padding: 0.85rem; }
     }
   </style>
 </head>
@@ -271,7 +275,7 @@
     <div class="css-sat-body sat-1">
       <div class="css-sat-antenna"></div>
     </div>
-    
+
     <div class="css-sat-body sat-2">
       <div class="css-sat-antenna"></div>
     </div>
