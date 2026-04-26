@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Linux Tools that Improved my Terminal Fu - Melonlorrd's Blog</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <style>
+     
+    :root {
+      --max-width: 680px;
+      --font-mono: 'Iosevka Charon Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+     
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --space-1: #030509; --space-2: #060a14; --space-3: #0a1120;
+        --space-4: #0f182d; --space-5: #152240;
+        --fg: #d0d8e6; --fg-muted: #8496b0;
+        --link: #6fe7d2; --star: #fce883;
+
+        --win-bg: #060a14; --win-border: #fce883;
+        --titlebar-bg: #fce883; --titlebar-fg: #060a14;
+
+        --heading: #fce883;
+        --tui-select: #fce883; --tui-select-fg: #060a14;
+
+        --code-bg: transparent; --code-border: #8496b0;
+        --inline-bg: #152240; --inline-fg: #6fe7d2;
+      }
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --space-1: #f8fafc; --space-2: #f0f4f8; --space-3: #e2e8f0;
+        --space-4: #cbd5e1; --space-5: #b2c0d0;
+
+        --fg: #1e293b; --fg-muted: #64748b;
+        --link: #0ea5e9; --star: #ffffff;
+
+        --win-bg: #ffffff; --win-border: #0f172a;
+        --titlebar-bg: #0f172a; --titlebar-fg: #ffffff;
+
+        --heading: #0f172a;
+        --tui-select: #0f172a; --tui-select-fg: #ffffff;
+
+        --code-bg: transparent; --code-border: #94a3b8;
+        --inline-bg: #f1f5f9; --inline-fg: #0ea5e9;
+      }
+    }
+
+     
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; background-color: var(--space-5);
+      background-image: linear-gradient(to bottom,
+        var(--space-1) 0%,   var(--space-1) 20vh,
+        var(--space-2) 20vh, var(--space-2) 40vh,
+        var(--space-3) 40vh, var(--space-3) 60vh,
+        var(--space-4) 60vh, var(--space-4) 80vh,
+        var(--space-5) 80vh, var(--space-5) 100vh
+      );
+      background-attachment: fixed; color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 16px; 
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased; padding: 3rem 1rem;
+    }
+
+    body::before, body::after {
+      content: ""; position: fixed; inset: 0;
+      z-index: -2; pointer-events: none; background-attachment: fixed;
+    }
+    body::before {
+      background-image:
+        radial-gradient(1.5px 1.5px at 40px 60px, var(--star) 100%, transparent),
+        radial-gradient(1px 1px at 200px 40px, var(--star) 100%, transparent);
+      background-size: 200px 200px, 150px 150px;
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+    body::after {
+      background-image:
+        radial-gradient(2px 2px at 150px 120px, var(--star) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 80px 220px, var(--star) 100%, transparent);
+      background-size: 300px 300px, 250px 250px;
+      animation: twinkle 3s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+     
+    .screensaver {
+      position: fixed; inset: 0; z-index: -1;
+      pointer-events: none; overflow: hidden;
+      opacity: 0; visibility: hidden;
+      transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
+    }
+
+    #win-min:checked ~ .screensaver { opacity: 1; visibility: visible; }
+    
+     
+    #win-min:checked ~ .screensaver .sat-1,
+    #win-min:checked ~ .screensaver .sat-2 {
+      animation-play-state: running;
+    }
+
+     
+    .css-sat-body {
+      position: absolute;
+      width: 16px; height: 16px;
+      background: var(--fg);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    
+     
+    .css-sat-body::before, .css-sat-body::after {
+      content: ""; position: absolute;
+      top: 3px; width: 35px; height: 10px;
+      background: var(--link);
+      border: 1px solid var(--space-4);
+      opacity: 0.9;
+    }
+    .css-sat-body::before { right: 100%; margin-right: 4px; }
+    .css-sat-body::after { left: 100%; margin-left: 4px; }
+
+     
+    .css-sat-antenna {
+      position: absolute; bottom: 100%; left: 7px;
+      width: 2px; height: 12px; background: var(--fg-muted);
+    }
+    .css-sat-antenna::after {
+      content: ""; position: absolute; top: -4px; left: -3px;
+      width: 8px; height: 3px; background: var(--heading);
+      border-radius: 50%;
+    }
+
+     
+    .sat-1 { animation: orbit-1 35s linear infinite paused; }
+    .sat-2 { animation: orbit-2 50s linear infinite paused; opacity: 0.6; }
+
+    @keyframes orbit-1 {
+      0% { transform: translate(-30vw, 85vh) rotate(20deg); }
+      100% { transform: translate(120vw, 15vh) rotate(50deg); }
+    }
+    @keyframes orbit-2 {
+      0% { transform: translate(120vw, 35vh) rotate(-15deg) scale(0.6); }
+      100% { transform: translate(-30vw, 75vh) rotate(-45deg) scale(0.6); }
+    }
+
+    @media (max-width: 600px) { .screensaver { display: none; } }
+
+     
+    .os-window {
+      max-width: var(--max-width);
+      margin: 0 auto; background-color: var(--win-bg);
+      border: 2px solid var(--win-border);
+      border-radius: 8px; overflow: hidden;
+      transition: max-width 0.3s ease;
+      position: relative; z-index: 10;
+    }
+
+    .os-titlebar {
+      background-color: var(--titlebar-bg); color: var(--titlebar-fg);
+      padding: 0.6rem 1rem; border-bottom: 2px solid var(--win-border);
+      display: grid; grid-template-columns: 60px 1fr 60px;
+      align-items: center; user-select: none;
+    }
+
+    .os-controls { display: flex; gap: 8px; align-items: center; }
+
+    .ctrl-btn {
+      width: 12px; height: 12px; border-radius: 50%;
+      cursor: pointer; position: relative;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); transition: opacity 0.1s;
+    }
+    .btn-close { background-color: var(--fg-muted); cursor: not-allowed; opacity: 0.5; }
+    .btn-min   { background-color: #ffbd2e; }
+    .btn-max   { background-color: #27c93f; }
+    .ctrl-btn:active:not(.btn-close) { opacity: 0.6; }
+
+    .os-title {
+      font-weight: 800; font-size: 0.85rem; letter-spacing: -0.5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      text-align: center;
+    }
+
+    .os-content { padding: 2rem; }
+
+    #win-max:checked ~ .os-window { max-width: 95vw; }
+    #win-min:checked ~ .os-window .os-content { display: none; }
+
+     
+    main { margin: 0; padding: 0; }
+
+    a {
+      color: var(--link); text-decoration: underline; text-decoration-thickness: 1px;
+      text-underline-offset: 3px; font-weight: 700; cursor: pointer;
+    }
+    @media (hover: hover) {
+      a:hover { background-color: var(--tui-select); color: var(--tui-select-fg); text-decoration: none; }
+    }
+
+     
+    .back {
+      display: inline-block; margin-bottom: 2rem; font-size: 0.85rem;
+      border: 1px solid var(--win-border); color: var(--fg);
+      padding: 0.3rem 0.6rem; text-decoration: none;
+    }
+    .back::before { content: "$ "; font-weight: bold; color: var(--heading); }
+
+    header { margin-bottom: 2.5rem; border-bottom: 1px solid var(--win-border); padding-bottom: 1rem; }
+    header h1 {
+      color: var(--heading); font-size: clamp(1.4rem, 4vw, 1.8rem); line-height: 1.2;
+      margin: 0 0 0.5rem 0; font-weight: 800; text-transform: uppercase;
+      letter-spacing: -0.5px;
+    }
+    header time {
+      display: inline-block; color: var(--fg-muted); font-size: 0.8rem;
+    }
+    header time::before { content: "DATE: "; font-weight: bold; }
+
+    article p { margin: 0 0 1.25rem; }
+
+    article h2, article h3, article h4 {
+      color: var(--heading); margin: 2rem 0 1rem 0; font-size: 1.15rem;
+      font-weight: 800; display: inline-block;
+    }
+
+    article img {
+      max-width: 100%; height: auto; display: block; margin: 1.5rem 0;
+      border: 1px solid var(--code-border);
+    }
+
+    article ul, article ol { padding-left: 1.25rem; margin: 0 0 1.25rem 0; }
+    article li { margin: 0.4rem 0; }
+    article li::marker { color: var(--heading); font-weight: bold; }
+
+     
+    article blockquote {
+      margin: 1.5rem 0; padding: 1rem;
+      border-left: 4px solid var(--heading);
+      background-color: var(--inline-bg);
+      color: var(--fg); font-style: italic;
+    }
+
+     
+    pre {
+      background-color: var(--code-bg); color: var(--fg);
+      border: 1px solid var(--code-border); padding: 1rem;
+      overflow-x: auto; margin: 1.5rem 0; font-size: 0.85rem;
+    }
+
+    p code, li code {
+      background-color: var(--inline-bg); color: var(--inline-fg);
+      padding: 0.15rem 0.35rem; font-size: 0.85em; font-weight: 700;
+    }
+
+     
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .os-window {
+        max-width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+      .os-titlebar { display: none; }
+      .os-content { padding: 1.5rem 1rem; }
+      pre { font-size: 0.85rem; padding: 0.85rem; } 
+    }
+  </style>
+</head>
+
+<body>
+  <input type="checkbox" id="win-min" hidden>
+  <input type="checkbox" id="win-max" hidden>
+
+  
+  <div class="screensaver">
+    
+    <div class="css-sat-body sat-1">
+      <div class="css-sat-antenna"></div>
+    </div>
+    
+    
+    <div class="css-sat-body sat-2">
+      <div class="css-sat-antenna"></div>
+    </div>
+  </div>
+
+  <div class="os-window">
+    <div class="os-titlebar">
+      
+      <div class="os-controls">
+        <span class="ctrl-btn btn-close" title="Close (Disabled)"></span>
+        <label for="win-min" class="ctrl-btn btn-min" title="Minimize / Shade"></label>
+        <label for="win-max" class="ctrl-btn btn-max" title="Maximize"></label>
+      </div>
+      
+      <div class="os-title">~/reader.sh</div>
+      <div></div>
+    </div>
+
+    <div class="os-content">
+      <main>
+        <a class="back" href="index.html">cd ..</a>
+
+        <header>
+          <h1>Linux Tools that Improved my Terminal Fu</h1>
+          <time>2024.11.25</time>
+        </header>
+
+        <article>
+          <p>These Linux tools have significantly enhanced my terminal skills.</p>
+<h2 id="fuser">fuser</h2>
+<p>If you're a developer, you've likely encountered issues like &quot;port already in use&quot; or &quot;bind address already in use,&quot; where you have no idea which program (or process) is occupying that port. <code>fuser</code> is a handy tool that identifies processes using files or sockets. For example, let's find process (in this case, a tcp server) running at port 5000, and kill that process.</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span>snwzd@kepler ~ &gt; fuser 5000/tcp
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">2</span><span>5000/tcp:       <span style="color:#3677a9">163293</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">3</span><span>snwzd@kepler ~ &gt; <span style="color:#24909d">kill</span> <span style="color:#3677a9">163293</span>
+</span></span></code></pre><h2 id="objdump">objdump</h2>
+<p>I use <code>objdump</code> to list the shared libraries required by a binary. This is particularly useful when building minimal Docker images for Go applications which compile to binaries. For example:</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span>snwzd@kepler ~ &gt; objdump -p bin/csp | grep NEEDED
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">2</span><span>NEEDED               libresolv.so.2
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">3</span><span>NEEDED               libc.so.6
+</span></span></code></pre><h2 id="find">find</h2>
+<p><code>find</code> is used for searching files and directories based on a variety of conditions like name, size, modification date, and more. For example:</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span>find . -type f -name <span style="color:#ed9d13">&#34;*.txt&#34;</span> -size +1M -maxdepth <span style="color:#3677a9">3</span> -mindepth <span style="color:#3677a9">2</span>
+</span></span></code></pre><p>Here, <code>.</code> represents the current directory. <code>-type f</code> filters only regular files, <code>-name &quot;*.txt&quot;</code> selects files ending in <code>.txt</code>, <code>-size +1M</code> filters by size (&gt;1MB), <code>-maxdepth 3</code> and <code>-mindepth 2</code> restricts search depth.</p>
+<h2 id="grep">grep</h2>
+<p><code>grep</code> is used to list files that match regex patterns.</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span><span style="color:#999;font-style:italic"># display lines containing the words &#34;app&#34;, &#34;apple&#34;, or &#34;apples&#34;, i.e. display filename of files whose text match pattern</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">2</span><span>grep -l <span style="color:#ed9d13">&#34;^app(le|les)?</span>$<span style="color:#ed9d13">&#34;</span> *.txt
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">4</span><span><span style="color:#999;font-style:italic"># display lines not containing the word &#34;banana&#34;, i.e. display text inverse of match pattern (case insensitive)</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">5</span><span>grep -vi <span style="color:#ed9d13">&#34;^banana</span>$<span style="color:#ed9d13">&#34;</span> example.txt
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">7</span><span><span style="color:#999;font-style:italic"># print lines that match with regex</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">8</span><span>grep -E <span style="color:#ed9d13">&#34;^[a-zA-Z0-9._]+@[a-zA-Z0-9]+.[a-z]{2,3}(.[a-z]{2,3})?</span>$<span style="color:#ed9d13">&#34;</span> email_list.txt
+</span></span></code></pre><h2 id="sed">sed</h2>
+<p>Stream editor which is commonly used to perform find and replace.</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span>sed <span style="color:#ed9d13">&#39;s/hello/hi/n&#39;</span> example.txt <span style="color:#999;font-style:italic"># Replace the nth occurrence</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">2</span><span>sed <span style="color:#ed9d13">&#39;s/hello/hi/g&#39;</span> example.txt <span style="color:#999;font-style:italic"># Replace all occurrences</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">3</span><span>sed <span style="color:#ed9d13">&#39;s/hello/hi/ng&#39;</span> example.txt <span style="color:#999;font-style:italic"># Replace every nth occurrence</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">4</span><span>sed -i <span style="color:#ed9d13">&#39;s/hello/hi/g&#39;</span> example.txt <span style="color:#999;font-style:italic"># In-place editing, modifies the file</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">5</span><span>sed <span style="color:#ed9d13">&#39;2d&#39;</span> example.txt <span style="color:#999;font-style:italic"># Delete the second line</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">6</span><span>sed <span style="color:#ed9d13">&#39;/hello/d&#39;</span> example.txt <span style="color:#999;font-style:italic"># Delete lines containing the pattern</span>
+</span></span></code></pre><h2 id="xargs">xargs</h2>
+<p>Used to build and execute commands from standard input.</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span><span style="color:#999;font-style:italic"># using end of line as delimiters</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">2</span><span><span style="color:#24909d">echo</span> -e <span style="color:#ed9d13">&#34;item1\nitem2\nitem3&#34;</span> | xargs -d <span style="color:#ed9d13">&#39;\n&#39;</span> -n <span style="color:#3677a9">1</span> <span style="color:#24909d">echo</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">4</span><span><span style="color:#999;font-style:italic"># don&#39;t run if empty</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">5</span><span><span style="color:#24909d">echo</span> <span style="color:#ed9d13">&#34;&#34;</span> | xargs -r <span style="color:#24909d">echo</span> {}
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">7</span><span><span style="color:#999;font-style:italic"># replace string</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">8</span><span>ls *.md | xargs -I {} head -n <span style="color:#3677a9">1</span> {} <span style="color:#999;font-style:italic"># prints first line of each .md file in current directory</span>
+</span></span></code></pre><p>Parallel execution:</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span>ls *.md | xargs -P <span style="color:#3677a9">4</span> -n <span style="color:#3677a9">1</span> grep <span style="color:#ed9d13">&#34;example&#34;</span>
+</span></span></code></pre><p>Here, -P 4 specifies 4 process can be run parallely and -n 1 makes sure one filename is passed to one grep command. I am using grep in example as grep is single threaded.</p>
+<h2 id="tee">tee</h2>
+<p>Used to redirect the output of a command to both the stdout and one or more files simultaneously. It is handy for creating verbose logs while executing scripts.</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">1</span><span>ls -l | tee file_list.txt <span style="color:#999;font-style:italic"># redirect output to file</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">2</span><span>ls -l | tee -a file_list.txt <span style="color:#999;font-style:italic"># append output to file</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">3</span><span>ls -l | tee file_list.txt backup_file_list.txt <span style="color:#999;font-style:italic"># redirecting output to multiple files</span>
+</span></span></code></pre><h2 id="tar">tar</h2>
+<p>Used for archiving files and directories.</p>
+<pre style="color:#d0d0d0;background-color:#202020;"><code><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 1</span><span><span style="color:#999;font-style:italic"># creating archive, c: create v: verbose :z compression :f archive file</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 2</span><span>tar -cvzf archive.tar file1.txt file2.txt directory/
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 3</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 4</span><span><span style="color:#999;font-style:italic"># viewing archive</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 5</span><span>tar -tvzf archive.tar
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 6</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 7</span><span><span style="color:#999;font-style:italic"># appending files to archive</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 8</span><span>tar -rvzf archive.tar newfile.txt
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868"> 9</span><span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">10</span><span><span style="color:#999;font-style:italic"># extracting archive</span>
+</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#686868">11</span><span>tar -xvzf archive.tar
+</span></span></code></pre><p>Thankyou for reading my blog.</p>
+        </article>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    
+    (function() {
+      const minBtn = document.getElementById('win-min');
+      const maxBtn = document.getElementById('win-max');
+      const savedState = localStorage.getItem('melonlorrd_os_state');
+
+      if (savedState === 'min') minBtn.checked = true;
+      if (savedState === 'max') maxBtn.checked = true;
+
+      minBtn.addEventListener('change', () => {
+        if (minBtn.checked) {
+          maxBtn.checked = false;
+          localStorage.setItem('melonlorrd_os_state', 'min');
+        } else {
+          localStorage.setItem('melonlorrd_os_state', 'normal');
+        }
+      });
+
+      maxBtn.addEventListener('change', () => {
+        if (maxBtn.checked) {
+          minBtn.checked = false;
+          localStorage.setItem('melonlorrd_os_state', 'max');
+        } else {
+          localStorage.setItem('melonlorrd_os_state', 'normal');
+        }
+      });
+    })();
+
+    
+    document.addEventListener('click', function(e) {
+      let link = e.target.closest('a');
+      if (link) {
+        e.preventDefault();
+
+        if (link.dataset.loading === "true") return;
+        link.dataset.loading = "true";
+
+        const isExternal = link.getAttribute('target') === '_blank';
+        const originalText = link.innerText;
+
+        link.style.backgroundColor = "var(--tui-select)";
+        link.style.color = "var(--tui-select-fg)";
+        link.style.textDecoration = "none";
+
+        const spinner = ['[—]', '[\\]', '[|]', '[/]'];
+        let step = 0;
+        const actionText = isExternal ? "Transporting..." : "Executing...";
+
+        const loaderInterval = setInterval(() => {
+          link.innerText = `${spinner[step % 4]} ${actionText}`;
+          step++;
+        }, 80);
+
+        setTimeout(() => {
+          clearInterval(loaderInterval);
+          if (isExternal) {
+            window.open(link.href, '_blank');
+            setTimeout(() => {
+              link.innerText = originalText;
+              link.dataset.loading = "false";
+              link.style.backgroundColor = "";
+              link.style.color = "";
+              link.style.textDecoration = "";
+            }, 100);
+          } else {
+            window.location.href = link.href;
+          }
+        }, 400);
+      }
+    });
+  </script>
+</body>
+</html>

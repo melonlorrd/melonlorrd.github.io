@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Melonlorrd's Blog</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <style>
+     
+    :root {
+      --max-width: 680px;
+      --font-mono: 'Iosevka Charon Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+     
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --space-1: #030509; --space-2: #060a14; --space-3: #0a1120;
+        --space-4: #0f182d; --space-5: #152240;
+        --fg: #d0d8e6; --fg-muted: #8496b0;
+        --link: #6fe7d2; --star: #fce883;
+
+        --win-bg: #060a14; --win-border: #fce883;
+        --titlebar-bg: #fce883; --titlebar-fg: #060a14;
+
+        --heading: #fce883;
+        --tui-select: #fce883; --tui-select-fg: #060a14;
+      }
+    }
+
+     
+    @media (prefers-color-scheme: light) {
+      :root {
+        --space-1: #f8fafc; --space-2: #f0f4f8; --space-3: #e2e8f0;
+        --space-4: #cbd5e1; --space-5: #b2c0d0;
+
+        --fg: #1e293b; --fg-muted: #64748b;
+        --link: #0ea5e9; --star: #ffffff;
+
+        --win-bg: #ffffff; --win-border: #0f172a;
+        --titlebar-bg: #0f172a; --titlebar-fg: #ffffff;
+
+        --heading: #0f172a;
+        --tui-select: #0f172a; --tui-select-fg: #ffffff;
+      }
+    }
+
+     
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0; background-color: var(--space-5);
+      background-image: linear-gradient(to bottom,
+        var(--space-1) 0%,   var(--space-1) 20vh,
+        var(--space-2) 20vh, var(--space-2) 40vh,
+        var(--space-3) 40vh, var(--space-3) 60vh,
+        var(--space-4) 60vh, var(--space-4) 80vh,
+        var(--space-5) 80vh, var(--space-5) 100vh
+      );
+      background-attachment: fixed; color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 16px; 
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased; padding: 3rem 1rem;
+    }
+
+     
+    body::before, body::after {
+      content: ""; position: fixed; inset: 0;
+      z-index: -2; pointer-events: none; background-attachment: fixed;
+    }
+    body::before {
+      background-image:
+        radial-gradient(1.5px 1.5px at 40px 60px, var(--star) 100%, transparent),
+        radial-gradient(1px 1px at 200px 40px, var(--star) 100%, transparent);
+      background-size: 200px 200px, 150px 150px;
+      animation: twinkle 4s ease-in-out infinite alternate;
+    }
+    body::after {
+      background-image:
+        radial-gradient(2px 2px at 150px 120px, var(--star) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 80px 220px, var(--star) 100%, transparent);
+      background-size: 300px 300px, 250px 250px;
+      animation: twinkle 3s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+     
+    .screensaver {
+      position: fixed; inset: 0; z-index: -1;
+      pointer-events: none; overflow: hidden;
+      opacity: 0; visibility: hidden;
+      transition: opacity 1.5s ease-in-out, visibility 1.5s ease-in-out;
+    }
+
+    #win-min:checked ~ .screensaver { opacity: 1; visibility: visible; }
+    
+     
+    #win-min:checked ~ .screensaver .sat-1,
+    #win-min:checked ~ .screensaver .sat-2 {
+      animation-play-state: running;
+    }
+
+     
+    .css-sat-body {
+      position: absolute;
+      width: 16px; height: 16px;
+      background: var(--fg);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    
+     
+    .css-sat-body::before, .css-sat-body::after {
+      content: ""; position: absolute;
+      top: 3px; width: 35px; height: 10px;
+      background: var(--link);
+      border: 1px solid var(--space-4);
+      opacity: 0.9;
+    }
+    .css-sat-body::before { right: 100%; margin-right: 4px; }
+    .css-sat-body::after { left: 100%; margin-left: 4px; }
+
+     
+    .css-sat-antenna {
+      position: absolute; bottom: 100%; left: 7px;
+      width: 2px; height: 12px; background: var(--fg-muted);
+    }
+    .css-sat-antenna::after {
+      content: ""; position: absolute; top: -4px; left: -3px;
+      width: 8px; height: 3px; background: var(--heading);
+      border-radius: 50%;
+    }
+
+     
+    .sat-1 { animation: orbit-1 35s linear infinite paused; }
+    .sat-2 { animation: orbit-2 50s linear infinite paused; opacity: 0.6; }
+
+    @keyframes orbit-1 {
+      0% { transform: translate(-30vw, 85vh) rotate(20deg); }
+      100% { transform: translate(120vw, 15vh) rotate(50deg); }
+    }
+    @keyframes orbit-2 {
+      0% { transform: translate(120vw, 35vh) rotate(-15deg) scale(0.6); }
+      100% { transform: translate(-30vw, 75vh) rotate(-45deg) scale(0.6); }
+    }
+
+    @media (max-width: 600px) { .screensaver { display: none; } }
+
+     
+    .os-window {
+      max-width: var(--max-width);
+      margin: 0 auto; background-color: var(--win-bg);
+      border: 2px solid var(--win-border);
+      border-radius: 8px; overflow: hidden;
+      transition: max-width 0.3s ease;
+      position: relative; z-index: 10;  
+    }
+
+    .os-titlebar {
+      background-color: var(--titlebar-bg); color: var(--titlebar-fg);
+      padding: 0.6rem 1rem; border-bottom: 2px solid var(--win-border);
+      display: grid; grid-template-columns: 60px 1fr 60px;
+      align-items: center; user-select: none;
+    }
+
+    .os-controls { display: flex; gap: 8px; align-items: center; }
+
+    .ctrl-btn {
+      width: 12px; height: 12px; border-radius: 50%;
+      cursor: pointer; position: relative;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); transition: opacity 0.1s;
+    }
+    .btn-close { background-color: var(--fg-muted); cursor: not-allowed; opacity: 0.5; }
+    .btn-min   { background-color: #ffbd2e; }
+    .btn-max   { background-color: #27c93f; }
+
+    .ctrl-btn:active:not(.btn-close) { opacity: 0.6; }
+
+    .os-title {
+      font-weight: 800; font-size: 0.85rem; letter-spacing: -0.5px;
+      text-align: center;
+    }
+
+    .os-content { padding: 2rem; transition: padding 0.3s ease, max-height 0.3s ease; }
+
+    #win-max:checked ~ .os-window { max-width: 95vw; }
+    #win-min:checked ~ .os-window .os-content { display: none; }
+
+     
+    main { margin: 0; padding: 0; }
+
+    h1 {
+      color: var(--heading); font-weight: 800; letter-spacing: -0.5px;
+      margin-top: 0; font-size: 1.15rem; margin-bottom: 1rem;
+      display: inline-block; padding-right: 1rem;
+    }
+
+    p { margin: 0 0 1.25rem; }
+
+    a {
+      color: var(--link); text-decoration: none; font-weight: 700;
+      transition: none; display: inline-block; cursor: pointer;
+    }
+
+    @media (hover: hover) {
+      a:hover { background-color: var(--tui-select); color: var(--tui-select-fg); }
+    }
+
+     
+    .section-block { margin-bottom: 3rem; }
+    .section-block:last-child { margin-bottom: 0; }
+
+    .tui-list { list-style: none; padding: 0; margin: 0; border: 1px solid var(--win-border); }
+    .tui-list li {
+      display: flex; align-items: baseline; gap: 1rem; padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--win-border); transition: none;
+    }
+    .tui-list li:last-child { border-bottom: none; }
+    .tui-list time { flex-shrink: 0; font-size: 0.8rem; color: var(--fg-muted); width: 6rem; }
+    .tui-list a { font-size: 0.95rem; flex-grow: 1; }
+
+    @media (hover: hover) {
+      .tui-list li:hover { background-color: var(--tui-select); color: var(--tui-select-fg); }
+      .tui-list li:hover time, .tui-list li:hover a { color: var(--tui-select-fg); background: transparent; }
+      .tui-list li:hover a::before { content: "> "; font-weight: 800; }
+    }
+
+     
+    @media (max-width: 600px) {
+      body { padding: 0; }
+      .os-window {
+        max-width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+      .os-titlebar { display: none; }
+      .os-content { padding: 1.5rem 1rem; }
+      .tui-list li { flex-direction: column; gap: 0.1rem; padding: 0.75rem; }
+      .tui-list time { width: auto; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+
+<body>
+  
+  <input type="checkbox" id="win-min" hidden>
+  <input type="checkbox" id="win-max" hidden>
+
+  
+  <div class="screensaver">
+    
+    <div class="css-sat-body sat-1">
+      <div class="css-sat-antenna"></div>
+    </div>
+    
+    
+    <div class="css-sat-body sat-2">
+      <div class="css-sat-antenna"></div>
+    </div>
+  </div>
+
+  <div class="os-window">
+    <div class="os-titlebar">
+      
+      <div class="os-controls">
+        <span class="ctrl-btn btn-close" title="Close (Disabled)"></span>
+        <label for="win-min" class="ctrl-btn btn-min" title="Minimize / Shade"></label>
+        <label for="win-max" class="ctrl-btn btn-max" title="Maximize"></label>
+      </div>
+      
+      <div class="os-title">~/home.sh</div>
+      <div></div> 
+    </div>
+
+    <div class="os-content">
+      <main>
+        <section class="section-block">
+          <h1>$ whoami</h1>
+          <p>Hello. I'm Mahaprasad, passionate about Infrastructure and Systems Engineering. Currently navigating the cloud at AceCloud as a DevOps Engineer. In the quiet hours, I enjoy Music and Sketching.</p>
+          <ul class="tui-list">
+            <li><a href="https://www.linkedin.com/in/mprasadme" target="_blank">LinkedIn</a></li>
+            <li><a href="https://github.com/melonlorrd" target="_blank">GitHub</a></li>
+          </ul>
+        </section>
+
+        <section class="section-block">
+          <h1>$ ls -l ./posts</h1>
+          <ul class="tui-list">
+            
+            <li>
+              <time>2026.01.04</time>
+              <a href="reinventing-blog-wheel.html">Reinventing the Blog Wheel, and Happy New Year 2026!</a>
+            </li>
+            
+            <li>
+              <time>2024.11.25</time>
+              <a href="terminal-fu.html">Linux Tools that Improved my Terminal Fu</a>
+            </li>
+            
+            <li>
+              <time>2024.11.23</time>
+              <a href="basic-bash-scripting.html">Basic Bash Scripting</a>
+            </li>
+            
+            <li>
+              <time>2024.11.20</time>
+              <a href="basic-regex.html">Basic Regex with Examples</a>
+            </li>
+            
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    
+    (function() {
+      const minBtn = document.getElementById('win-min');
+      const maxBtn = document.getElementById('win-max');
+      const savedState = localStorage.getItem('melonlorrd_os_state');
+
+      if (savedState === 'min') minBtn.checked = true;
+      if (savedState === 'max') maxBtn.checked = true;
+
+      minBtn.addEventListener('change', () => {
+        if (minBtn.checked) {
+          maxBtn.checked = false;
+          localStorage.setItem('melonlorrd_os_state', 'min');
+        } else {
+          localStorage.setItem('melonlorrd_os_state', 'normal');
+        }
+      });
+
+      maxBtn.addEventListener('change', () => {
+        if (maxBtn.checked) {
+          minBtn.checked = false;
+          localStorage.setItem('melonlorrd_os_state', 'max');
+        } else {
+          localStorage.setItem('melonlorrd_os_state', 'normal');
+        }
+      });
+    })();
+
+    
+    document.addEventListener('click', function(e) {
+      let link = e.target.closest('a');
+      if (link) {
+        e.preventDefault();
+
+        if (link.dataset.loading === "true") return;
+        link.dataset.loading = "true";
+
+        const isExternal = link.getAttribute('target') === '_blank';
+        const originalText = link.innerText;
+
+        link.style.backgroundColor = "var(--tui-select)";
+        link.style.color = "var(--tui-select-fg)";
+        link.style.textDecoration = "none";
+
+        const spinner = ['[—]', '[\\]', '[|]', '[/]'];
+        let step = 0;
+        const actionText = isExternal ? "Transporting..." : "Executing...";
+
+        const loaderInterval = setInterval(() => {
+          link.innerText = `${spinner[step % 4]} ${actionText}`;
+          step++;
+        }, 80);
+
+        setTimeout(() => {
+          clearInterval(loaderInterval);
+          if (isExternal) {
+            window.open(link.href, '_blank');
+            setTimeout(() => {
+              link.innerText = originalText;
+              link.dataset.loading = "false";
+              link.style.backgroundColor = "";
+              link.style.color = "";
+              link.style.textDecoration = "";
+            }, 100);
+          } else {
+            window.location.href = link.href;
+          }
+        }, 400); 
+      }
+    });
+  </script>
+</body>
+</html>
