@@ -336,6 +336,7 @@
       });
     })();
 
+    // Lightweight script to keep the TUI button-press feel on click
     document.addEventListener('click', function(e) {
       let link = e.target.closest('a');
       if (link) {
@@ -345,27 +346,18 @@
         link.dataset.loading = "true";
 
         const isExternal = link.getAttribute('target') === '_blank';
-        const originalText = link.innerText;
 
+        // Apply selected TUI colors
         link.style.backgroundColor = "var(--tui-select)";
         link.style.color = "var(--tui-select-fg)";
         link.style.textDecoration = "none";
 
-        const spinner = ['[—]', '[\\]', '[|]', '[/]'];
-        let step = 0;
-        const actionText = isExternal ? "Transporting..." : "Executing...";
-
-        const loaderInterval = setInterval(() => {
-          link.innerText = `${spinner[step % 4]} ${actionText}`;
-          step++;
-        }, 80);
-
+        // Short delay to register the visual click, then navigate
         setTimeout(() => {
-          clearInterval(loaderInterval);
           if (isExternal) {
             window.open(link.href, '_blank');
+            // Reset styles for external links so page acts normal upon return
             setTimeout(() => {
-              link.innerText = originalText;
               link.dataset.loading = "false";
               link.style.backgroundColor = "";
               link.style.color = "";
@@ -374,7 +366,7 @@
           } else {
             window.location.href = link.href;
           }
-        }, 400);
+        }, 150);
       }
     });
   </script>

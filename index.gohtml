@@ -60,7 +60,7 @@
       );
       background-attachment: fixed; color: var(--fg);
       font-family: var(--font-mono);
-      font-size: 16px; 
+      font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased; padding: 3rem 1rem;
     }
@@ -93,7 +93,7 @@
     }
 
     #win-min:checked ~ .screensaver { opacity: 1; visibility: visible; }
-    
+
     #win-min:checked ~ .screensaver .sat-1,
     #win-min:checked ~ .screensaver .sat-2 {
       animation-play-state: running;
@@ -106,7 +106,7 @@
       border-radius: 2px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
-    
+
     .css-sat-body::before, .css-sat-body::after {
       content: ""; position: absolute;
       top: 3px; width: 35px; height: 10px;
@@ -147,7 +147,7 @@
       border: 2px solid var(--win-border);
       border-radius: 8px; overflow: hidden;
       transition: max-width 0.3s ease;
-      position: relative; z-index: 10; 
+      position: relative; z-index: 10;
     }
 
     .os-titlebar {
@@ -241,7 +241,7 @@
     <div class="css-sat-body sat-1">
       <div class="css-sat-antenna"></div>
     </div>
-    
+
     <div class="css-sat-body sat-2">
       <div class="css-sat-antenna"></div>
     </div>
@@ -312,6 +312,7 @@
       });
     })();
 
+    // Lightweight script to keep the TUI button-press feel on click
     document.addEventListener('click', function(e) {
       let link = e.target.closest('a');
       if (link) {
@@ -321,27 +322,18 @@
         link.dataset.loading = "true";
 
         const isExternal = link.getAttribute('target') === '_blank';
-        const originalText = link.innerText;
 
+        // Apply selected TUI colors
         link.style.backgroundColor = "var(--tui-select)";
         link.style.color = "var(--tui-select-fg)";
         link.style.textDecoration = "none";
 
-        const spinner = ['[—]', '[\\]', '[|]', '[/]'];
-        let step = 0;
-        const actionText = isExternal ? "Transporting..." : "Executing...";
-
-        const loaderInterval = setInterval(() => {
-          link.innerText = `${spinner[step % 4]} ${actionText}`;
-          step++;
-        }, 80);
-
+        // Short delay to register the visual click, then navigate
         setTimeout(() => {
-          clearInterval(loaderInterval);
           if (isExternal) {
             window.open(link.href, '_blank');
+            // Reset styles for external links so page acts normal upon return
             setTimeout(() => {
-              link.innerText = originalText;
               link.dataset.loading = "false";
               link.style.backgroundColor = "";
               link.style.color = "";
@@ -350,7 +342,7 @@
           } else {
             window.location.href = link.href;
           }
-        }, 400); 
+        }, 150); 
       }
     });
   </script>
