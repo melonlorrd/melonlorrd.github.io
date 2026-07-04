@@ -1,6 +1,8 @@
 # Understanding BIOS, UEFI, and Secure Boot
 
-When I started using Linux, I wondered, Fedora booted perfectly with Secure boot enabled, while Arch did not. Understanding why led me into reading about UEFI, Secure boot, Shim, Machine Owner Keys (MOK), firmware databases, certificate revocation, and more recently, Unified Kernel Images (UKIs). This post is an attempt to organize those ideas. Rather than treating BIOS, UEFI, and Secure boot as separate topics, it helps to see them as different stages in the evolution of how computers boot.
+When I started using Linux, I wondered, Fedora booted perfectly with Secure boot enabled, while Arch did not. Understanding why led me into reading about UEFI, Secure boot, Shim, Machine Owner Keys (MOK), firmware databases, certificate revocation, and more recently, Unified Kernel Images (UKIs). 
+
+This post is an attempt to organize those ideas. Rather than treating BIOS, UEFI, and Secure boot as separate topics, it helps to see them as different stages in the evolution of how computers boot.
 
 # The Boot Process
 
