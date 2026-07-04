@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
+	gmhtml "github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
 )
 
@@ -43,6 +45,23 @@ func main() {
 	renderIndex(buildDir, blogs)
 }
 
+var mermaidRe = regexp.MustCompile("(?s)```mermaid\n(.*?)```[ \t]*")
+
+func preprocessMermaid(src []byte) []byte {
+	return mermaidRe.ReplaceAllFunc(src, func(match []byte) []byte {
+		content := string(match)
+		content = content[10:] // strip "```mermaid\n"
+		content = strings.TrimSuffix(content, "```")
+		content = strings.TrimSpace(content)
+
+		var buf bytes.Buffer
+		buf.WriteString("<pre class=\"mermaid\">")
+		template.HTMLEscape(&buf, []byte(content))
+		buf.WriteString("</pre>")
+		return buf.Bytes()
+	})
+}
+
 func loadBlogs() []Blog {
 	var blogs []Blog
 
@@ -59,6 +78,9 @@ func loadBlogs() []Blog {
 		),
 		goldmark.WithParserOptions(
 			parser.WithAutoHeadingID(),
+		),
+		goldmark.WithRendererOptions(
+			gmhtml.WithUnsafe(),
 		),
 	)
 
@@ -81,6 +103,8 @@ func loadBlogs() []Blog {
 
 		src, err := os.ReadFile(path)
 		must(err)
+
+		src = preprocessMermaid(src)
 
 		blogs = append(blogs, Blog{
 			Title: extractTitle(md, src),

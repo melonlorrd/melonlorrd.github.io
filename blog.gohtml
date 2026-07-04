@@ -82,7 +82,7 @@
     }
 
     article {
-      font-size: 0.9375rem; /* Slight step down for easier reading lengths */
+      font-size: 0.9375rem;
     }
 
     article h2 {
@@ -151,6 +151,13 @@
     article li {
       margin-bottom: 0.5rem;
     }
+
+    /* Add a little styling to center mermaid charts */
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+    }
   </style>
 </head>
 
@@ -171,5 +178,20 @@
       </div>
     </article>
   </main>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDarkMode ? 'dark' : 'default'
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      mermaid.run({ querySelector: '.mermaid' });
+    });
+  </script>
 </body>
 </html>
