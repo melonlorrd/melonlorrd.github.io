@@ -1,10 +1,6 @@
 # Understanding BIOS, UEFI, and Secure Boot
 
-I first encountered bootloaders while installing Arch Linux in my first year of college. I experimented with GRUB and later switched to systemd-boot, mostly because it felt simpler. Secure boot was something I routinely disabled because it got in the way, and I never questioned why.
-
-That changed after spending some time on Fedora before returning to Arch. Fedora booted perfectly with Secure boot enabled, while Arch did not. Understanding why led me into reading about UEFI, Secure boot, Shim, Machine Owner Keys (MOK), firmware databases, certificate revocation, and more recently, Unified Kernel Images (UKIs). Well, I ended up with Secure boot enabled Arch installation too.
-
-This post is an attempt to organize those ideas. Rather than treating BIOS, UEFI, and Secure boot as separate topics, it helps to see them as different stages in the evolution of how computers start.
+When I started using Linux, I wondered, Fedora booted perfectly with Secure boot enabled, while Arch did not. Understanding why led me into reading about UEFI, Secure boot, Shim, Machine Owner Keys (MOK), firmware databases, certificate revocation, and more recently, Unified Kernel Images (UKIs). This post is an attempt to organize those ideas. Rather than treating BIOS, UEFI, and Secure boot as separate topics, it helps to see them as different stages in the evolution of how computers boot.
 
 # The Boot Process
 
