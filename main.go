@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
@@ -31,6 +32,11 @@ type Blog struct {
 	HTML  template.HTML
 }
 
+type IndexData struct {
+	Blogs     []Blog
+	BuildTime string
+}
+
 func main() {
 	buildDir := "build"
 
@@ -43,6 +49,7 @@ func main() {
 	// Render blogs before the index so existing blogs are included.
 	renderBlogs(buildDir, blogs)
 	renderIndex(buildDir, blogs)
+	renderRSS(buildDir, blogs)
 }
 
 var mermaidRe = regexp.MustCompile("(?s)```mermaid\n(.*?)```[ \t]*")
@@ -139,8 +146,51 @@ func renderIndex(outDir string, blogs []Blog) {
 
 	out := filepath.Join(outDir, "index.html")
 	f := mustCreate(out)
-	must(tmpl.Execute(f, blogs))
+	must(tmpl.Execute(f, IndexData{
+		Blogs:     blogs,
+		BuildTime: "GMT+5:30",
+	}))
 	f.Close()
+}
+
+func renderRSS(outDir string, blogs []Blog) {
+	rssPath := filepath.Join(outDir, "rss.xml")
+	f := mustCreate(rssPath)
+	defer f.Close()
+
+	fmt.Fprint(f, `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Melonlorrd's Blog</title>
+    <link>https://melonlorrd.github.io</link>
+    <description>Infrastructure and Systems Engineering</description>
+    <language>en-us</language>
+    <atom:link href="https://melonlorrd.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+`)
+
+	for _, b := range blogs {
+		fmt.Fprintf(f, `    <item>
+      <title>`)
+		template.HTMLEscape(f, []byte(b.Title))
+		fmt.Fprintf(f, `</title>
+      <link>https://melonlorrd.github.io/`)
+		template.HTMLEscape(f, []byte(b.Slug))
+		fmt.Fprintf(f, `.html</link>
+      <guid>https://melonlorrd.github.io/`)
+		template.HTMLEscape(f, []byte(b.Slug))
+		fmt.Fprintf(f, `.html</guid>
+      <pubDate>`)
+		fmt.Fprint(f, b.Date.Format(time.RFC1123Z))
+		fmt.Fprint(f, `</pubDate>
+      <description><![CDATA[`)
+		template.HTMLEscape(f, []byte(b.HTML))
+		fmt.Fprintf(f, `]]></description>
+    </item>
+`)
+	}
+
+	fmt.Fprint(f, `  </channel>
+</rss>`)
 }
 
 func must(err error) {

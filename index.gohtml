@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="rss.xml">
   <title>Melonlorrd's Blog</title>
 
   <style>
@@ -68,8 +69,6 @@
 
     header {
       margin-bottom: 2.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border);
     }
 
     header h1 {
@@ -122,6 +121,17 @@
     .post-list a {
       font-size: 1rem;
     }
+
+    footer {
+      max-width: 42rem;
+      margin: 4rem auto 0;
+      font-size: 0.9375rem;
+    }
+
+    footer p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+    }
   </style>
 </head>
 
@@ -132,17 +142,18 @@
     </header>
 
     <section class="bio">
-      <p>Hello. I'm Mahaprasad, passionate about Infrastructure and Systems Engineering. Currently navigating the cloud at AceCloud as a DevOps Engineer. In the quiet hours, I enjoy Music and Sketching.</p>
+      <p>Hello. I'm Mahaprasad, passionate about Infrastructure and Systems Engineering. Currently exploring the cloud at AceCloud as a DevOps Engineer. In the quiet hours, I enjoy Music and Sketching.</p>
       <div class="social-links">
         <a href="https://www.linkedin.com/in/mprasadme" target="_blank">LinkedIn</a>
         <a href="https://github.com/melonlorrd" target="_blank">GitHub</a>
+        <a href="rss.xml" target="_blank">RSS</a>
       </div>
     </section>
 
     <section class="posts">
       <h2>Writing</h2>
       <ul class="post-list">
-        {{ range . }}
+        {{ range .Blogs }}
         <li>
           <time>{{ .Date.Format "2006.01.02" }}</time>
           <a href="{{ .Slug }}.html">{{ .Title }}</a>
@@ -151,5 +162,9 @@
       </ul>
     </section>
   </main>
+
+  <footer>
+    <p>Last updated from {{ .BuildTime }}</p>
+  </footer>
 </body>
 </html>

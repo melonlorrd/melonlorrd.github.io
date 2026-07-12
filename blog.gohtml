@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="rss.xml">
   <title>{{ .Title }} - Melonlorrd's Blog</title>
 
   <style>
@@ -50,6 +51,7 @@
     }
 
     nav {
+      display: flex;
       margin-bottom: 2.5rem;
       font-size: 0.9375rem;
     }
@@ -158,13 +160,31 @@
       justify-content: center;
       margin: 2rem 0;
     }
+
+    footer {
+      max-width: 42rem;
+      margin: 3rem auto 0;
+      font-size: 0.9375rem;
+    }
+
+    footer p {
+      margin: 0;
+    }
+
+    footer pre {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
   </style>
 </head>
 
 <body>
   <main>
     <nav>
-      <a href="index.html">← Back to home</a>
+      <a href="index.html">Back to home</a>
+      <span style="margin-left: auto;"><a href="rss.xml">RSS</a></span>
     </nav>
 
     <article>
@@ -178,6 +198,10 @@
       </div>
     </article>
   </main>
+
+  <footer>
+    <a href="#">Back to top</a>
+  </footer>
 
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
