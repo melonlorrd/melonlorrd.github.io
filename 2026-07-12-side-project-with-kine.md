@@ -68,9 +68,9 @@ INNER JOIN kine AS latest_record
 
 That is a subquery with a `GROUP BY` and an inner join just to retrieve a single key-value pair. The overhead isn't just the network, it is the SQL itself. By contrast, etcd is purpose-built for this workload. It stores revisions in a b-tree, watches are push-based, and there is no query planner, MVCC visibility rules, or buffer cache to manage. A `PUT` in etcd is a b-tree insert with a Raft round trip. A `PUT` in Kine involves multiple SQL queries, transaction overhead, and constraint checking. Even if the network was eliminated entirely by running Postgres on the same machine, the SQL translation layer would likely still be slower than native etcd. This is not a flaw in Kine's design but instead it is a fundamental consequence of putting a relational database between Kubernetes and its storage. The trade-off here is swapping the performance of a specialized key-value store for the operational simplicity of a familiar database.
 
-# So Why Choose This Architecture?
+# Why use Kine
 
-For small to medium Kubernetes clusters, this overhead rarely matters. A single-node K3s cluster with SQLite handles dozens of pods effortlessly. A small multi-node cluster backed by a managed Postgres instance can handle hundreds. The bottleneck in these clusters is rarely the storage layer—it's usually the application workload itself.
+For small to medium Kubernetes clusters, this overhead rarely matters. A single-node K3s cluster with SQLite handles dozens of pods effortlessly. A small multi-node cluster backed by a managed Postgres instance can handle hundreds. The bottleneck in these clusters is rarely the storage layer, it's usually the application workload itself.
 
 The typical profile for this deployment pattern seems to be:
 - Teams without dedicated infrastructure engineers.
@@ -246,10 +246,10 @@ This extra round trip is a direct consequence of the `NOTIFY` payload limit. In 
 To see how much the network actually dominates, I ran the etcd benchmark tool against both the original Kine v0.16.3 and the new native Postgres backend, pointing both at the same remote Postgres instance. I'm definitely not claiming this is a rigorous benchmark: it is just what I ran on a Sunday evening against a database on a different machine. Take the numbers as directional.
 
 The benchmark covered four operation types:
-- **put sequential** — writes with monotonically increasing keys (similar to how the Kubernetes API server creates resources).
-- **put random** — writes with random keys.
-- **range point** — single-key reads by exact name (the most common read pattern in Kubernetes).
-- **watch** — streaming watch requests.
+- put sequential: writes with monotonically increasing keys (similar to how the Kubernetes API server creates resources).
+- put random: writes with random keys.
+- range point: single-key reads by exact name (the most common read pattern in Kubernetes).
+- watch: streaming watch requests.
 
 Here is what I found:
 
