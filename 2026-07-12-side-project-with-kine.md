@@ -13,14 +13,7 @@ Instead of using `LISTEN/NOTIFY`, I noticed there was a polling loop that checke
 # The Problem Kine Solves
 
 Before getting into the implementation details, it helps to step back and look at why Kine exists in the first place.
-
-Kubernetes was designed around etcd. The guarantees that etcd provides, along with its performance in an ideal scenario, are absolutely critical for a well-performing Kubernetes cluster. But running etcd in production is operationally tasking, especially in environments where network drops and slow disks are common. A typical highly available setup requires at least three nodes, careful tuning the timeouts, and someone who understands etcd internals when things go wrong.
-
-By design etcd halts writes if the cluster is unhealthy to prevent inconsistency. But in environments where network and disk reliability are not guaranteed or if I may, speculate that the cluster is a dev environment and not production but few applications from developers are running on it, having the cluster shut off completely can be a major issue.
-
-K3s targets a different deployment profile: edge devices, Raspberry Pis, and single-node servers where a three-node etcd cluster is overkill. For these cases, SQLite is a much simpler dependency.
-
-```mermaid
+Kubernetes was designed around etcd. The guarantees that etcd provides, along with its performance in an ideal scenario, are absolutely critical for a well-performing Kubernetes cluster. But running etcd in production is operationally tasking, especially in environments where network drops and slow disks are common. A typical highly available setup requires at least three nodes, careful tuning the timeouts, and someone who understands etcd internals when things go wrong. By design etcd halts writes if the cluster is unhealthy to prevent inconsistency. But in environments where network and disk reliability are not guaranteed or if I may, speculate that the cluster is a dev environment and not production but few applications from developers are running on it, having the cluster shut off completely can be a major issue. K3s targets a different deployment profile: edge devices, Raspberry Pis, and single-node servers where a three-node etcd cluster is overkill. For these cases, SQLite is a much simpler dependency. ```mermaid
 graph LR
     subgraph Kubernetes
         API[API Server] --> Kine
@@ -111,7 +104,7 @@ Each layer had a specific job:
 
 This structure made perfect sense for supporting many databases.
 
-# The Watch Problem
+# The Watch Implementation
 
 The most interesting compromise I found was how Kine handled watch delivery. Postgres, MySQL, and SQLite don't share a universal push mechanism for arbitrary SQL queries. To work around this, Kine used a shared polling approach: a background goroutine polled the database every second for new rows, then broadcasted them to all active watchers.
 
@@ -150,7 +143,7 @@ graph LR
 
 The most interesting design decision I made during this experiment was introducing a write channel. Every create, update, delete, and compact request is sent to a single goroutine that processes them sequentially on a single database connection.
 
-This seems counterintuitive at first: doesn't this lose all the benefits of concurrency? In most systems, yes. But Kine's data model has a specific property that makes serialization safe and effective: it relies on an **append-only MVCC** (Multi-Version Concurrency Control) model with monotonically increasing revision IDs. Every write creates a new row, and the revision is an auto-incrementing `id`. Without serialization, two concurrent goroutines could both compute the same "next" revision, causing conflicts:
+This seems counterintuitive at first: doesn't this lose all the benefits of concurrency? In most systems, yes. But Kine's data model has a specific property that makes serialization safe and effective: it relies on an append-only MVCC (Multi-Version Concurrency Control) model with monotonically increasing revision IDs. Every write creates a new row, and the revision is an auto-incrementing `id`. Without serialization, two concurrent goroutines could both compute the same "next" revision, causing conflicts:
 
 ```mermaid
 sequenceDiagram
