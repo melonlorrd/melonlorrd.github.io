@@ -8,7 +8,7 @@ Instead of using `LISTEN/NOTIFY`, I noticed there was a polling loop that checke
 
 > A quick note before we begin:
 >
-> This started as a weekend side project driven by curiosity. The implementation, benchmarks, and conclusions here should be treated as observations from my experiments, not definitive technical results. I've never operated PostgreSQL clusters at terabyte scale or Kubernetes clusters with 500 of nodes, so there are almost certainly trade-offs and production considerations that I have not encountered yet.
+> This started as a weekend side project driven by curiosity. The implementation, benchmarks, and conclusions here should be treated as observations from my experiments, not definitive technical results. I've never operated PostgreSQL at terabyte scale or Kubernetes clusters with 500 of nodes, so there are almost certainly trade-offs and production considerations that I have not encountered yet.
 
 # The Problem Kine Solves
 
@@ -70,7 +70,7 @@ That is a subquery with a `GROUP BY` and an inner join just to retrieve a single
 
 # Why use Kine
 
-For small to medium Kubernetes clusters, this overhead rarely matters. A single-node K3s cluster with SQLite handles dozens of pods effortlessly. A small multi-node cluster backed by a managed Postgres instance can handle hundreds. The bottleneck in these clusters is rarely the storage layer, it's usually the application workload itself.
+For small to medium Kubernetes clusters, probably this overhead rarely matters. A single-node K3s cluster with SQLite handles dozens of pods effortlessly. A small multi-node cluster backed by a managed Postgres instance can handle hundreds. The bottleneck in these clusters is rarely the storage layer, it's usually the application workload itself.
 
 The typical profile for this deployment pattern seems to be:
 - Teams without dedicated infrastructure engineers.
@@ -141,7 +141,7 @@ graph LR
 
 # Why Serialize Writes?
 
-The most interesting design decision I made during this experiment was introducing a write channel. Every create, update, delete, and compact request is sent to a single goroutine that processes them sequentially on a single database connection.
+For what I wanted to do, I introduced write channel. Every create, update, delete, and compact request is sent to a single goroutine that processes them sequentially on a single database connection.
 
 This seems counterintuitive at first: doesn't this lose all the benefits of concurrency? In most systems, yes. But Kine's data model has a specific property that makes serialization safe and effective: it relies on an append-only MVCC (Multi-Version Concurrency Control) model with monotonically increasing revision IDs. Every write creates a new row, and the revision is an auto-incrementing `id`. Without serialization, two concurrent goroutines could both compute the same "next" revision, causing conflicts:
 
@@ -246,9 +246,9 @@ This extra round trip is a direct consequence of the `NOTIFY` payload limit. In 
 To see how much the network actually dominates, I ran the etcd benchmark tool against both the original Kine v0.16.3 and the new native Postgres backend, pointing both at the same remote Postgres instance. I'm definitely not claiming this is a rigorous benchmark: it is just what I ran on a Sunday evening against a database on a different machine. Take the numbers as directional.
 
 The benchmark covered four operation types:
-- put sequential: writes with monotonically increasing keys (similar to how the Kubernetes API server creates resources).
+- put sequential: writes with monotonically increasing keys.
 - put random: writes with random keys.
-- range point: single-key reads by exact name (the most common read pattern in Kubernetes).
+- range point: single-key reads by exact name.
 - watch: streaming watch requests.
 
 Here is what I found:
@@ -265,12 +265,10 @@ Here is what I found:
 
 The exact commands used for each operation were identical to before, running 5,000 operations with 10 concurrent clients.
 
-The writes showed a modest 10% improvement in the new backend. This is roughly the difference between five SQL round trips (old) and two (new) at about 30ms each over a remote connection. The two backends were nearly indistinguishable for range and watch operations. If this were a local Postgres instance with sub-millisecond latency, the improvement would likely be much larger because the query count would dominate execution time instead of being drowned out by the network. But as mentioned earlier, running Kine against a local Postgres doesn't make much sense when SQLite exists.
+The writes showed a minor 10% improvement in the new backend. This is roughly the difference between five SQL round trips (old) and two (new) at about 30ms each over a remote connection. The two backends were nearly indistinguishable for range and watch operations. If this were a local Postgres instance with sub-millisecond latency, the improvement would likely be a bit more because the query count would dominate execution time instead of being drowned out by the network. But as mentioned earlier, running Kine against a local Postgres doesn't make much sense when SQLite exists.
 
 # End of the Weekend
 
-I started this project purely out of curiosity to see what would happen if the generic abstractions were stripped away. I naively assumed that leveraging Postgres directly would make it significantly faster. But the performance improvement was modest, simply because the network was the limiting factor all along.
-
-This experiment finally clarified my mental model of Kine: it isn't trying to be faster than etcd. It is simply offering a different trade-off. It accepts lower storage performance in exchange for not having to operate an etcd cluster. For small to medium Kubernetes clusters, that is a trade-off worth making. The database was the bottleneck the whole time, and that's okay, because it is a piece of infrastructure many teams already know how to manage.
+I started this project purely out of curiosity to see what would happen if the generic abstractions were stripped away. I naively assumed that leveraging Postgres directly would make it significantly faster. But the performance improvement was okay, simply because the network was the limiting factor all along. This experiment finally clarified my mental model of Kine: it isn't trying to be faster than etcd. It is simply offering a different trade-off. It accepts lower storage performance in exchange for not having to operate an etcd cluster.
 
 Hopefully this organized the topic into a mental model rather than a collection of unrelated concepts.
