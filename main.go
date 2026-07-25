@@ -158,39 +158,74 @@ func renderRSS(outDir string, blogs []Blog) {
 	f := mustCreate(rssPath)
 	defer f.Close()
 
-	fmt.Fprint(f, `<?xml version="1.0" encoding="UTF-8"?>
+	baseURL := "https://melonlorrd.github.io"
+	lastBuildDate := time.Now().Format(time.RFC1123Z)
+	if len(blogs) > 0 {
+		lastBuildDate = blogs[0].Date.Format(time.RFC1123Z)
+	}
+
+	fmt.Fprintf(f, `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Melonlorrd's Blog</title>
-    <link>https://melonlorrd.github.io</link>
+    <link>%s</link>
     <description>Infrastructure and Systems Engineering</description>
     <language>en-us</language>
-    <atom:link href="https://melonlorrd.github.io/rss.xml" rel="self" type="application/rss+xml"/>
-`)
+    <lastBuildDate>%s</lastBuildDate>
+    <atom:link href="%s/rss.xml" rel="self" type="application/rss+xml"/>
+`, baseURL, lastBuildDate, baseURL)
 
 	for _, b := range blogs {
+		itemLink := fmt.Sprintf("%s/%s.html", baseURL, b.Slug)
+		absHTML := makeAbsoluteURLs(string(b.HTML), baseURL)
+		cdataHTML := safeCDATA(absHTML)
+
 		fmt.Fprintf(f, `    <item>
       <title>`)
 		template.HTMLEscape(f, []byte(b.Title))
 		fmt.Fprintf(f, `</title>
-      <link>https://melonlorrd.github.io/`)
-		template.HTMLEscape(f, []byte(b.Slug))
-		fmt.Fprintf(f, `.html</link>
-      <guid>https://melonlorrd.github.io/`)
-		template.HTMLEscape(f, []byte(b.Slug))
-		fmt.Fprintf(f, `.html</guid>
-      <pubDate>`)
-		fmt.Fprint(f, b.Date.Format(time.RFC1123Z))
-		fmt.Fprint(f, `</pubDate>
-      <description><![CDATA[`)
-		template.HTMLEscape(f, []byte(b.HTML))
-		fmt.Fprintf(f, `]]></description>
+      <link>%s</link>
+      <guid isPermaLink="true">%s</guid>
+      <pubDate>%s</pubDate>
+      <description><![CDATA[%s]]></description>
     </item>
-`)
+`, itemLink, itemLink, b.Date.Format(time.RFC1123Z), cdataHTML)
 	}
 
 	fmt.Fprint(f, `  </channel>
 </rss>`)
+}
+
+var urlAttrRe = regexp.MustCompile(`(?i)\b(src|href)=["']([^"']+)["']`)
+
+func makeAbsoluteURLs(htmlStr string, baseURL string) string {
+	baseURL = strings.TrimSuffix(baseURL, "/")
+	return urlAttrRe.ReplaceAllStringFunc(htmlStr, func(match string) string {
+		submatches := urlAttrRe.FindStringSubmatch(match)
+		if len(submatches) < 3 {
+			return match
+		}
+		attr := submatches[1]
+		val := submatches[2]
+
+		lowerVal := strings.ToLower(val)
+		if strings.HasPrefix(lowerVal, "http://") ||
+			strings.HasPrefix(lowerVal, "https://") ||
+			strings.HasPrefix(lowerVal, "mailto:") ||
+			strings.HasPrefix(lowerVal, "data:") ||
+			strings.HasPrefix(lowerVal, "#") {
+			return match
+		}
+
+		if strings.HasPrefix(val, "/") {
+			return fmt.Sprintf(`%s="%s%s"`, attr, baseURL, val)
+		}
+		return fmt.Sprintf(`%s="%s/%s"`, attr, baseURL, val)
+	})
+}
+
+func safeCDATA(s string) string {
+	return strings.ReplaceAll(s, "]]>", "]]]]><![CDATA[>")
 }
 
 func must(err error) {
