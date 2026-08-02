@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
+	gohtml "html"
 	"html/template"
 	"io"
 	"io/fs"
@@ -153,6 +155,24 @@ func renderIndex(outDir string, blogs []Blog) {
 	f.Close()
 }
 
+var mermaidPreRe = regexp.MustCompile(`(?s)<pre class="mermaid">(.*?)</pre>`)
+
+func convertMermaidForRSS(htmlContent string) string {
+	return mermaidPreRe.ReplaceAllStringFunc(htmlContent, func(match string) string {
+		submatches := mermaidPreRe.FindStringSubmatch(match)
+		if len(submatches) < 2 {
+			return match
+		}
+		rawMermaid := gohtml.UnescapeString(submatches[1])
+		rawMermaid = strings.TrimSpace(rawMermaid)
+
+		encoded := base64.StdEncoding.EncodeToString([]byte(rawMermaid))
+		imgURL := "https://mermaid.ink/svg/" + encoded
+
+		return fmt.Sprintf(`<div class="mermaid-diagram" style="text-align: center; margin: 1.5rem 0;"><img src="%s" alt="Mermaid diagram" style="max-width: 100%%; height: auto;" /></div>`, imgURL)
+	})
+}
+
 func renderRSS(outDir string, blogs []Blog) {
 	rssPath := filepath.Join(outDir, "rss.xml")
 	f := mustCreate(rssPath)
@@ -177,7 +197,8 @@ func renderRSS(outDir string, blogs []Blog) {
 
 	for _, b := range blogs {
 		itemLink := fmt.Sprintf("%s/%s.html", baseURL, b.Slug)
-		absHTML := makeAbsoluteURLs(string(b.HTML), baseURL)
+		rssHTML := convertMermaidForRSS(string(b.HTML))
+		absHTML := makeAbsoluteURLs(rssHTML, baseURL)
 		cdataHTML := safeCDATA(absHTML)
 
 		fmt.Fprintf(f, `    <item>
