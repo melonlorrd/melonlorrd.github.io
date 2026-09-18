@@ -177,18 +177,7 @@ sequenceDiagram
     L->>F: Send newer Raft entries
 ```
 
-Within a few seconds, the follower applied the snapshot and was fully caught up. Running `etcdctl endpoint health` showed all three members healthy again:
-
-```bash
-$ etcdctl endpoint health --write-out=table
-+------------------------+--------+-------------+-------+
-|        ENDPOINT--------| HEALTH |    TOOK     | ERROR |
-+------------------------+--------+-------------+-------+
-| https://10.0.0.11:2379 |   true |  8.32145ms  |       |
-| https://10.0.0.12:2379 |   true |  7.91234ms  |       |
-| https://10.0.0.13:2379 |   true |  9.10452ms  |       |
-+------------------------+--------+-------------+-------+
-```
+Within a few seconds, the follower applied the snapshot and was fully caught up. Running `etcdctl endpoint health` showed all three members healthy again.
 
 # What I Took Away From This
 
