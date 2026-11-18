@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
@@ -55,9 +56,10 @@ type Blog struct {
 
 type PostPage struct {
 	Blog
-	BaseURL string
-	Newer   *Blog
-	Older   *Blog
+	BaseURL    string
+	CSSVersion string
+	Newer      *Blog
+	Older      *Blog
 }
 
 type YearGroup struct {
@@ -66,21 +68,23 @@ type YearGroup struct {
 }
 
 type IndexData struct {
-	Years     []YearGroup
-	BuildDate string
-	BuildTZ   string
+	Years      []YearGroup
+	BuildDate  string
+	BuildTZ    string
+	CSSVersion string
 }
 
 func main() {
 	must(os.RemoveAll(buildDir))
 	must(os.MkdirAll(buildDir, 0755))
 	must(syncAttachments(buildDir))
-	must(writeStylesheet(buildDir))
+	cssVersion, err := writeStylesheet(buildDir)
+	must(err)
 
 	blogs := loadBlogs()
 
-	renderBlogs(buildDir, blogs)
-	renderIndex(buildDir, blogs)
+	renderBlogs(buildDir, blogs, cssVersion)
+	renderIndex(buildDir, blogs, cssVersion)
 	renderRSS(buildDir, blogs)
 }
 
@@ -169,13 +173,6 @@ func figures(s string) string {
 	return loneImageRe.ReplaceAllString(s, "<figure>$1<figcaption>$2</figcaption></figure>")
 }
 
-// Clickable "#" anchors on headings, website only.
-var headingRe = regexp.MustCompile(`(?s)<h([2-4]) id="([^"]+)">(.*?)</h[2-4]>`)
-
-func headingAnchors(s string) string {
-	return headingRe.ReplaceAllString(s, `<h$1 id="$2">$3<a class="anchor" href="#$2" aria-label="Link to this section">#</a></h$1>`)
-}
-
 func loadBlogs() []Blog {
 	var blogs []Blog
 
@@ -207,7 +204,7 @@ func loadBlogs() []Blog {
 
 		title, summary := extractMeta(webMD, src)
 
-		webHTML := headingAnchors(figures(renderBody(webMD, src)))
+		webHTML := figures(renderBody(webMD, src))
 		feedHTML := figures(renderBody(feedMD, src))
 		feedHTML = makeAbsoluteURLs(convertMermaidForRSS(feedHTML), baseURL)
 
@@ -309,11 +306,11 @@ func renderBody(md goldmark.Markdown, src []byte) string {
 // Pages
 // ---------------------------------------------------------------------------
 
-func renderBlogs(outDir string, blogs []Blog) {
+func renderBlogs(outDir string, blogs []Blog, cssVersion string) {
 	tmpl := template.Must(template.ParseFiles("blog.gohtml"))
 
 	for i, b := range blogs {
-		page := PostPage{Blog: b, BaseURL: baseURL}
+		page := PostPage{Blog: b, BaseURL: baseURL, CSSVersion: cssVersion}
 		if i > 0 {
 			page.Newer = &blogs[i-1]
 		}
@@ -327,7 +324,7 @@ func renderBlogs(outDir string, blogs []Blog) {
 	}
 }
 
-func renderIndex(outDir string, blogs []Blog) {
+func renderIndex(outDir string, blogs []Blog, cssVersion string) {
 	tmpl := template.Must(template.ParseFiles("index.gohtml"))
 
 	var years []YearGroup
@@ -343,18 +340,21 @@ func renderIndex(outDir string, blogs []Blog) {
 
 	f := mustCreate(filepath.Join(outDir, "index.html"))
 	must(tmpl.Execute(f, IndexData{
-		Years:     years,
-		BuildDate: time.Now().In(ist).Format("2006.01.02"),
-		BuildTZ:   "GMT+5:30",
+		Years:      years,
+		BuildDate:  time.Now().In(ist).Format("2006.01.02"),
+		BuildTZ:    "GMT+5:30",
+		CSSVersion: cssVersion,
 	}))
 	f.Close()
 }
 
-// writeStylesheet writes style.css plus syntax colours for light and dark.
-func writeStylesheet(outDir string) error {
+// writeStylesheet writes style.css plus syntax colours for light and dark,
+// and returns a short content hash. Pages link to style.css?v=<hash>, so a
+// browser never pairs new HTML with a stale cached stylesheet.
+func writeStylesheet(outDir string) (string, error) {
 	css, err := os.ReadFile("style.css")
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	var buf bytes.Buffer
@@ -364,18 +364,19 @@ func writeStylesheet(outDir string) error {
 
 	buf.WriteString("\n/* Syntax highlighting: light */\n")
 	if err := formatter.WriteCSS(&buf, styles.Get("github")); err != nil {
-		return err
+		return "", err
 	}
 	buf.WriteString("\n/* Syntax highlighting: dark */\n@media (prefers-color-scheme: dark) {\n")
 	if err := formatter.WriteCSS(&buf, styles.Get("github-dark")); err != nil {
-		return err
+		return "", err
 	}
 	buf.WriteString("}\n")
 
 	// Keep our own code background rather than the theme's.
 	buf.WriteString(".prose pre.chroma { background-color: var(--code-bg); color: var(--text); }\n")
 
-	return os.WriteFile(filepath.Join(outDir, "style.css"), buf.Bytes(), 0644)
+	sum := sha256.Sum256(buf.Bytes())
+	return fmt.Sprintf("%x", sum[:4]), os.WriteFile(filepath.Join(outDir, "style.css"), buf.Bytes(), 0644)
 }
 
 // ---------------------------------------------------------------------------

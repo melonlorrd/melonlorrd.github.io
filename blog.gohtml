@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ .Title }} · Melonlorrd's Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{ .Title }} · melonlorrd</title>
   <meta name="description" content="{{ .Summary }}">
+  <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15141a" media="(prefers-color-scheme: dark)">
   <meta property="og:type" content="article">
   <meta property="og:title" content="{{ .Title }}">
   <meta property="og:description" content="{{ .Summary }}">
@@ -14,29 +16,23 @@
   <meta name="twitter:card" content="summary">
   <link rel="canonical" href="{{ .BaseURL }}/{{ .Slug }}.html">
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
   <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="/rss.xml">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v={{ .CSSVersion }}">
 </head>
 
-<body id="top">
-  <div class="progress" aria-hidden="true"></div>
-
-  <header class="site-head">
-    <a class="peek" href="index.html" aria-label="Home"><img src="favicon.png" alt="" width="211" height="205"></a>
-    <a class="site-name" href="index.html">melonlorrd</a>
-    <nav>
-      <a href="index.html">posts</a>
-      <a href="/rss.xml">rss</a>
+<body>
+  <main class="wrap">
+    <nav class="bar">
+      <a class="avatar" href="index.html" aria-label="Home"><img src="favicon.png" alt="" width="28" height="27"></a>
+      <a class="name" href="index.html">melonlorrd</a>
+      <a class="rss" href="/rss.xml">rss</a>
     </nav>
-  </header>
 
-  <main>
     <article>
       <header class="post-head">
         <h1>{{ .Title }}</h1>
-        <p class="meta">
-          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time><span class="dot">✦</span>{{ .ReadingTime }} min read
-        </p>
+        <p class="meta"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time> · {{ .ReadingTime }} min read</p>
       </header>
 
       <div class="prose">
@@ -45,17 +41,19 @@
     </article>
 
     {{ if or .Older .Newer }}
-    <nav class="post-nav" aria-label="More posts">
-      {{ with .Older }}<a class="older" href="{{ .Slug }}.html"><small>← older</small><span>{{ .Title }}</span></a>{{ end }}
-      {{ with .Newer }}<a class="newer" href="{{ .Slug }}.html"><small>newer →</small><span>{{ .Title }}</span></a>{{ end }}
-    </nav>
+    <section class="more" aria-label="More posts">
+      <h2 class="section-label">keep reading</h2>
+      <ul class="posts">
+        {{ with .Older }}<li><a href="{{ .Slug }}.html"><span class="t">{{ .Title }}</span><span class="m">← older · {{ .Date.Format "Jan 2, 2006" }}</span></a></li>{{ end }}
+        {{ with .Newer }}<li><a href="{{ .Slug }}.html"><span class="t">{{ .Title }}</span><span class="m">newer → · {{ .Date.Format "Jan 2, 2006" }}</span></a></li>{{ end }}
+      </ul>
+    </section>
     {{ end }}
-  </main>
 
-  <footer class="site-foot">
-    <p><a href="index.html">melonlorrd</a> · thanks for reading</p>
-    <p><a href="#top">back to top ↑</a></p>
-  </footer>
+    <footer class="foot">
+      <p><a href="index.html">all posts</a> · <a href="/rss.xml">rss</a></p>
+    </footer>
+  </main>
 
   <script type="module">
     // Only fetch mermaid on posts that actually have diagrams.

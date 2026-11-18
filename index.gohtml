@@ -2,63 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Melonlorrd's Blog</title>
-  <meta name="description" content="Writing about Infrastructure and Systems Engineering by Mahaprasad.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mahaprasad · melonlorrd</title>
+  <meta name="description" content="Mahaprasad's corner of the internet. Writing about Infrastructure and Systems Engineering.">
+  <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15141a" media="(prefers-color-scheme: dark)">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Melonlorrd's Blog">
+  <meta property="og:title" content="Mahaprasad · melonlorrd">
   <meta property="og:description" content="Writing about Infrastructure and Systems Engineering.">
   <meta property="og:url" content="https://melonlorrd.github.io/">
   <meta property="og:image" content="https://melonlorrd.github.io/favicon.png">
   <link rel="canonical" href="https://melonlorrd.github.io/">
   <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
   <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="/rss.xml">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v={{ .CSSVersion }}">
 </head>
 
 <body>
-  <header class="site-head">
-    <a class="peek" href="index.html" aria-label="Home"><img src="favicon.png" alt="" width="211" height="205"></a>
-    <a class="site-name" href="index.html">melonlorrd</a>
-    <nav>
-      <a href="/rss.xml">rss</a>
-    </nav>
-  </header>
+  <main class="wrap">
+    <header class="intro">
+      <a class="avatar" href="index.html" aria-label="melonlorrd"><img src="favicon.png" alt="" width="56" height="54"></a>
 
-  <main>
-    <section class="hello">
-      <h1><span>Melonlorrd's Blog</span></h1>
-      <p>Hello. I'm Mahaprasad, passionate about Infrastructure and Systems Engineering. Currently working as a Site Reliability Engineer at Juspay. In the quiet hours, I enjoy Music and Sketching.</p>
-      <div class="links">
-        <a href="https://www.linkedin.com/in/mprasadme" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://github.com/melonlorrd" target="_blank" rel="noopener">GitHub</a>
-        <a href="/rss.xml">RSS</a>
-      </div>
-    </section>
+      <h1>Hello, I'm Mahaprasad.</h1>
+      <p>Passionate about Infrastructure and Systems Engineering. Currently working as a Site Reliability Engineer at Juspay. In the quiet hours, I enjoy Music and Sketching.</p>
 
-    <section class="posts" aria-label="Writing">
+      <ul class="links">
+        <li><a href="https://github.com/melonlorrd" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/mprasadme" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="/rss.xml">RSS</a></li>
+      </ul>
+    </header>
+
+    <section class="writing" aria-label="Writing">
       {{ range .Years }}
-      <div class="year">
-        <h2>{{ .Year }}</h2>
-        <ul class="post-list">
-          {{ range .Blogs }}
-          <li>
-            <a href="{{ .Slug }}.html">
-              <span class="t">{{ .Title }}</span>
-              <span class="leader" aria-hidden="true"></span>
-              <time class="d" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 02" }}</time>
-            </a>
-          </li>
-          {{ end }}
-        </ul>
-      </div>
+      <h2 class="section-label">{{ .Year }}</h2>
+      <ul class="posts">
+        {{ range .Blogs }}
+        <li>
+          <a href="{{ .Slug }}.html">
+            <span class="t">{{ .Title }}</span>
+            <span class="m"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time> · {{ .ReadingTime }} min</span>
+          </a>
+        </li>
+        {{ end }}
+      </ul>
       {{ end }}
     </section>
-  </main>
 
-  <footer class="site-foot">
-    <p>built with Go, Markdown &amp; questionable decisions</p>
-    <p>last built {{ .BuildDate }} from {{ .BuildTZ }}</p>
-  </footer>
+    <footer class="foot">
+      <p>built with Go, Markdown &amp; questionable decisions</p>
+      <p>last built {{ .BuildDate }} from {{ .BuildTZ }}</p>
+    </footer>
+  </main>
 </body>
 </html>

@@ -37,8 +37,13 @@
           program = toString (pkgs.writeShellScript "serve" ''
             set -e
             out=$(${pkgs.nix}/bin/nix build --no-link --print-out-paths .#site)
-            echo "Serving $out on http://localhost:8000"
-            exec ${pkgs.python3}/bin/python3 -m http.server -d "$out" 8000
+            # Copy out of the Nix store: store files all have a 1970 mtime,
+            # which makes browsers think nothing ever changed.
+            dir=$(mktemp -d)
+            trap 'rm -rf "$dir"' EXIT
+            cp -rL "$out"/. "$dir"
+            echo "Serving on http://localhost:8000 (Ctrl-C to stop)"
+            ${pkgs.python3}/bin/python3 -m http.server -d "$dir" 8000
           '');
         };
       });
