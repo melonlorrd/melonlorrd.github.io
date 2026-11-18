@@ -20,15 +20,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
       - name: Build site
         run: |
-          go mod tidy
-          go run main.go
+          nix build .#site --print-build-logs
+          # `result` is a read-only symlink into the Nix store; copy it out.
+          cp -rL result site
+          chmod -R u+w site
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build
+          path: site
 
   deploy:
     environment:

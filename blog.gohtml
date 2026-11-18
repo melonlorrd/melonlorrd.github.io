@@ -3,219 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ .Title }} · Melonlorrd's Blog</title>
+  <meta name="description" content="{{ .Summary }}">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="{{ .Title }}">
+  <meta property="og:description" content="{{ .Summary }}">
+  <meta property="og:url" content="{{ .BaseURL }}/{{ .Slug }}.html">
+  <meta property="og:image" content="{{ .BaseURL }}/favicon.png">
+  <meta property="article:published_time" content="{{ .Date.Format "2006-01-02" }}">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="{{ .BaseURL }}/{{ .Slug }}.html">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="/rss.xml">
-  <title>{{ .Title }} - Melonlorrd's Blog</title>
-
-  <style>
-    :root {
-      --bg: #ffffff;
-      --text: #1a1a1a;
-      --text-muted: #666666;
-      --link: #0055cc;
-      --link-hover: #003399;
-      --border: #eaeaea;
-      --code-bg: #f5f5f5;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121212;
-        --text: #e0e0e0;
-        --text-muted: #a0a0a0;
-        --link: #66b3ff;
-        --link-hover: #99ccff;
-        --border: #333333;
-        --code-bg: #1e1e1e;
-      }
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 2rem 1rem;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      font-size: 1rem;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    main {
-      max-width: 42rem;
-      margin: 0 auto;
-    }
-
-    nav {
-      display: flex;
-      margin-bottom: 2.5rem;
-      font-size: 0.9375rem;
-    }
-
-    a {
-      color: var(--link);
-      text-decoration: none;
-    }
-
-    a:hover {
-      color: var(--link-hover);
-      text-decoration: underline;
-    }
-
-    header {
-      margin-bottom: 2rem;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      margin: 0 0 0.25rem 0;
-      line-height: 1.2;
-      font-weight: 600;
-    }
-
-    header time {
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-
-    article {
-      font-size: 0.9375rem;
-    }
-
-    article h2 {
-      font-size: 1.25rem;
-      margin-top: 2rem;
-      margin-bottom: 0.75rem;
-      font-weight: 600;
-    }
-
-    article h3 {
-      font-size: 1.125rem;
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-      font-weight: 600;
-    }
-
-    article p {
-      margin-bottom: 1.25rem;
-    }
-
-    article img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 0.25rem;
-      margin: 1.5rem 0;
-    }
-
-    article blockquote {
-      margin: 1.5rem 0;
-      padding: 0.5rem 1rem;
-      border-left: 0.25rem solid var(--border);
-      color: var(--text-muted);
-      font-style: italic;
-    }
-
-    pre, code {
-      font-family: var(--font-mono);
-      font-size: 0.875rem;
-    }
-
-    code {
-      background-color: var(--code-bg);
-      padding: 0.125rem 0.25rem;
-      border-radius: 0.1875rem;
-    }
-
-    pre {
-      background-color: var(--code-bg);
-      padding: 1rem;
-      border-radius: 0.375rem;
-      overflow-x: auto;
-      margin: 1.5rem 0;
-    }
-
-    pre code {
-      background-color: transparent;
-      padding: 0;
-      border-radius: 0;
-    }
-
-    article ul, article ol {
-      padding-left: 1.5rem;
-      margin-bottom: 1.25rem;
-    }
-
-    article li {
-      margin-bottom: 0.5rem;
-    }
-
-    /* Add a little styling to center mermaid charts */
-    .mermaid {
-      display: flex;
-      justify-content: center;
-      margin: 2rem 0;
-    }
-
-    footer {
-      max-width: 42rem;
-      margin: 3rem auto 0;
-      font-size: 0.9375rem;
-    }
-
-    footer p {
-      margin: 0;
-    }
-
-    footer pre {
-      font-family: var(--font-mono);
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      margin: 0;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
-  <main>
-    <nav>
-      <a href="index.html">Back to home</a>
-      <span style="margin-left: auto;"><a href="/rss.xml">RSS</a></span>
-    </nav>
+<body id="top">
+  <div class="progress" aria-hidden="true"></div>
 
+  <header class="site-head">
+    <a class="peek" href="index.html" aria-label="Home"><img src="favicon.png" alt="" width="211" height="205"></a>
+    <a class="site-name" href="index.html">melonlorrd</a>
+    <nav>
+      <a href="index.html">posts</a>
+      <a href="/rss.xml">rss</a>
+    </nav>
+  </header>
+
+  <main>
     <article>
-      <header>
+      <header class="post-head">
         <h1>{{ .Title }}</h1>
-        <time>{{ .Date.Format "2006.01.02" }}</time>
+        <p class="meta">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time><span class="dot">✦</span>{{ .ReadingTime }} min read
+        </p>
       </header>
 
-      <div class="content">
+      <div class="prose">
         {{ .HTML }}
       </div>
     </article>
+
+    {{ if or .Older .Newer }}
+    <nav class="post-nav" aria-label="More posts">
+      {{ with .Older }}<a class="older" href="{{ .Slug }}.html"><small>← older</small><span>{{ .Title }}</span></a>{{ end }}
+      {{ with .Newer }}<a class="newer" href="{{ .Slug }}.html"><small>newer →</small><span>{{ .Title }}</span></a>{{ end }}
+    </nav>
+    {{ end }}
   </main>
 
-  <footer>
-    <a href="#">Back to top</a>
+  <footer class="site-foot">
+    <p><a href="index.html">melonlorrd</a> · thanks for reading</p>
+    <p><a href="#top">back to top ↑</a></p>
   </footer>
 
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-
-    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: isDarkMode ? 'dark' : 'default'
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      mermaid.run({ querySelector: '.mermaid' });
-    });
+    // Only fetch mermaid on posts that actually have diagrams.
+    if (document.querySelector('pre.mermaid')) {
+      const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@10.9.3/dist/mermaid.esm.min.mjs');
+      const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: dark ? 'dark' : 'neutral',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+      });
+      await mermaid.run({ querySelector: 'pre.mermaid' });
+    }
   </script>
 </body>
 </html>

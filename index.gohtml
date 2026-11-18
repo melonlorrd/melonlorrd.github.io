@@ -3,168 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Melonlorrd's Blog</title>
+  <meta name="description" content="Writing about Infrastructure and Systems Engineering by Mahaprasad.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Melonlorrd's Blog">
+  <meta property="og:description" content="Writing about Infrastructure and Systems Engineering.">
+  <meta property="og:url" content="https://melonlorrd.github.io/">
+  <meta property="og:image" content="https://melonlorrd.github.io/favicon.png">
+  <link rel="canonical" href="https://melonlorrd.github.io/">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="/rss.xml">
-  <title>Melonlorrd's Blog</title>
-
-  <style>
-    :root {
-      --bg: #ffffff;
-      --text: #1a1a1a;
-      --text-muted: #666666;
-      --link: #0055cc;
-      --link-hover: #003399;
-      --border: #eaeaea;
-      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #121212;
-        --text: #e0e0e0;
-        --text-muted: #a0a0a0;
-        --link: #66b3ff;
-        --link-hover: #99ccff;
-        --border: #333333;
-      }
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      padding: 2rem 1rem;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      font-size: 1rem;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    main {
-      max-width: 42rem;
-      margin: 0 auto;
-    }
-
-    h1, h2, h3 {
-      color: var(--text);
-      margin-top: 2rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-
-    p { margin: 0 0 1rem; }
-
-    a {
-      color: var(--link);
-      text-decoration: none;
-    }
-
-    a:hover {
-      color: var(--link-hover);
-      text-decoration: underline;
-    }
-
-    header {
-      margin-bottom: 2.5rem;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
-    .bio {
-      margin-bottom: 3rem;
-      font-size: 0.9375rem;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .posts h2 {
-      font-size: 1.125rem;
-    }
-
-    .post-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .post-list li {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 1.25rem;
-    }
-
-    @media (min-width: 32rem) {
-      .post-list li {
-        flex-direction: row;
-        align-items: baseline;
-        gap: 1.5rem;
-      }
-    }
-
-    .post-list time {
-      font-family: var(--font-mono);
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      min-width: 6.5rem;
-    }
-
-    .post-list a {
-      font-size: 1rem;
-    }
-
-    footer {
-      max-width: 42rem;
-      margin: 4rem auto 0;
-      font-size: 0.9375rem;
-    }
-
-    footer p {
-      color: var(--text-muted);
-      margin: 0.5rem 0 0;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <main>
-    <header>
-      <h1>Melonlorrd's Blog</h1>
-    </header>
+  <header class="site-head">
+    <a class="peek" href="index.html" aria-label="Home"><img src="favicon.png" alt="" width="211" height="205"></a>
+    <a class="site-name" href="index.html">melonlorrd</a>
+    <nav>
+      <a href="/rss.xml">rss</a>
+    </nav>
+  </header>
 
-    <section class="bio">
+  <main>
+    <section class="hello">
+      <h1><span>Melonlorrd's Blog</span></h1>
       <p>Hello. I'm Mahaprasad, passionate about Infrastructure and Systems Engineering. Currently working as a Site Reliability Engineer at Juspay. In the quiet hours, I enjoy Music and Sketching.</p>
-      <div class="social-links">
-        <a href="https://www.linkedin.com/in/mprasadme" target="_blank">LinkedIn</a>
-        <a href="https://github.com/melonlorrd" target="_blank">GitHub</a>
-        <a href="/rss.xml" target="_blank">RSS</a>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/mprasadme" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/melonlorrd" target="_blank" rel="noopener">GitHub</a>
+        <a href="/rss.xml">RSS</a>
       </div>
     </section>
 
-    <section class="posts">
-      <h2>Writing</h2>
-      <ul class="post-list">
-        {{ range .Blogs }}
-        <li>
-          <time>{{ .Date.Format "2006.01.02" }}</time>
-          <a href="{{ .Slug }}.html">{{ .Title }}</a>
-        </li>
-        {{ end }}
-      </ul>
+    <section class="posts" aria-label="Writing">
+      {{ range .Years }}
+      <div class="year">
+        <h2>{{ .Year }}</h2>
+        <ul class="post-list">
+          {{ range .Blogs }}
+          <li>
+            <a href="{{ .Slug }}.html">
+              <span class="t">{{ .Title }}</span>
+              <span class="leader" aria-hidden="true"></span>
+              <time class="d" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 02" }}</time>
+            </a>
+          </li>
+          {{ end }}
+        </ul>
+      </div>
+      {{ end }}
     </section>
   </main>
 
-  <footer>
-    <p>Last updated from {{ .BuildTime }}</p>
+  <footer class="site-foot">
+    <p>built with Go, Markdown &amp; questionable decisions</p>
+    <p>last built {{ .BuildDate }} from {{ .BuildTZ }}</p>
   </footer>
 </body>
 </html>
