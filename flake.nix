@@ -10,7 +10,6 @@
     in
     {
       packages = forAllSystems (pkgs: rec {
-        # The generator binary.
         generator = pkgs.buildGoModule {
           pname = "blog-generator";
           version = "0.1.0";
@@ -18,7 +17,6 @@
           vendorHash = "sha256-bg9jqQUR5McQrjcnDYWDKn8yNR8B0JheCs+c1dd3a64=";
         };
 
-        # The built website: `nix build` -> ./result is the site.
         site = pkgs.runCommand "melonlorrd-site" { nativeBuildInputs = [ generator ]; } ''
           cp -r ${./.}/. src
           chmod -R u+w src

@@ -50,8 +50,8 @@ type Blog struct {
 	Slug        string
 	Summary     string
 	ReadingTime int
-	HTML        template.HTML // for the website
-	FeedHTML    string        // for RSS readers: no highlighting markup, absolute URLs
+	HTML        template.HTML
+	FeedHTML    string // for RSS readers: no highlighting markup, absolute URLs
 }
 
 type PostPage struct {
@@ -87,10 +87,6 @@ func main() {
 	renderIndex(buildDir, blogs, cssVersion)
 	renderRSS(buildDir, blogs)
 }
-
-// ---------------------------------------------------------------------------
-// Markdown
-// ---------------------------------------------------------------------------
 
 var mermaidRe = regexp.MustCompile("(?s)```mermaid\n(.*?)```[ \t]*")
 
@@ -226,7 +222,6 @@ func loadBlogs() []Blog {
 	return blogs
 }
 
-// nodeText collects the plain text of a node, including inline code.
 func nodeText(n ast.Node, src []byte, buf *bytes.Buffer) {
 	for c := n.FirstChild(); c != nil; c = c.NextSibling() {
 		switch t := c.(type) {
@@ -302,10 +297,6 @@ func renderBody(md goldmark.Markdown, src []byte) string {
 	return strings.TrimSpace(buf.String())
 }
 
-// ---------------------------------------------------------------------------
-// Pages
-// ---------------------------------------------------------------------------
-
 func renderBlogs(outDir string, blogs []Blog, cssVersion string) {
 	tmpl := template.Must(template.ParseFiles("blog.gohtml"))
 
@@ -348,9 +339,8 @@ func renderIndex(outDir string, blogs []Blog, cssVersion string) {
 	f.Close()
 }
 
-// writeStylesheet writes style.css plus syntax colours for light and dark,
-// and returns a short content hash. Pages link to style.css?v=<hash>, so a
-// browser never pairs new HTML with a stale cached stylesheet.
+// writeStylesheet returns a content hash used as style.css?v=<hash>, so a browser never pairs
+// new HTML with a stale cached stylesheet.
 func writeStylesheet(outDir string) (string, error) {
 	css, err := os.ReadFile("style.css")
 	if err != nil {
@@ -362,11 +352,13 @@ func writeStylesheet(outDir string) (string, error) {
 
 	formatter := chromahtml.New(chromahtml.WithClasses(true))
 
-	buf.WriteString("\n/* Syntax highlighting: light */\n")
+	// Each theme is scoped to its own scheme: github-dark has no rule for some
+	// tokens (e.g. punctuation), and unscoped light colours would leak into dark.
+	buf.WriteString("\n/* Syntax highlighting: light */\n@media not (prefers-color-scheme: dark) {\n")
 	if err := formatter.WriteCSS(&buf, styles.Get("github")); err != nil {
 		return "", err
 	}
-	buf.WriteString("\n/* Syntax highlighting: dark */\n@media (prefers-color-scheme: dark) {\n")
+	buf.WriteString("}\n\n/* Syntax highlighting: dark */\n@media (prefers-color-scheme: dark) {\n")
 	if err := formatter.WriteCSS(&buf, styles.Get("github-dark")); err != nil {
 		return "", err
 	}
@@ -378,10 +370,6 @@ func writeStylesheet(outDir string) (string, error) {
 	sum := sha256.Sum256(buf.Bytes())
 	return fmt.Sprintf("%x", sum[:4]), os.WriteFile(filepath.Join(outDir, "style.css"), buf.Bytes(), 0644)
 }
-
-// ---------------------------------------------------------------------------
-// RSS
-// ---------------------------------------------------------------------------
 
 var mermaidPreRe = regexp.MustCompile(`(?s)<pre class="mermaid">(.*?)</pre>`)
 
@@ -475,10 +463,6 @@ func safeCDATA(s string) string {
 	return strings.ReplaceAll(s, "]]>", "]]]]><![CDATA[>")
 }
 
-// ---------------------------------------------------------------------------
-// Files
-// ---------------------------------------------------------------------------
-
 func must(err error) {
 	if err != nil {
 		log.Fatal(err)
@@ -497,7 +481,6 @@ func syncAttachments(outDir string) error {
 			return err
 		}
 		if d.IsDir() {
-			// Skip the output dir and dot-dirs like .git.
 			if path != "." && (path == outDir || strings.HasPrefix(d.Name(), ".")) {
 				return filepath.SkipDir
 			}

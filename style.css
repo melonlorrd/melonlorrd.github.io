@@ -1,22 +1,17 @@
-/* ---------------------------------------------------------------------------
-   melonlorrd: one column, same layout on phone and desktop.
-   Only the type scales with the screen. Lavender comes from the favicon.
-   --------------------------------------------------------------------------- */
-
 :root {
-  --bg: #fbfaf7;
-  --text: #22202a;
-  --muted: #6f6b7b;
-  --accent: #6644ee;
-  --accent-soft: #e9e3ff;
-  --border: #e9e6ef;
-  --code-bg: #f4f2f8;
+  --bg: #faf8f3;
+  --text: #1e2420;
+  --muted: #69716b;
+  --accent: #c8433a;
+  --accent-soft: #fbe2dc;
+  --rind: #2e6b4c;
+  --border: #e7e3d9;
+  --code-bg: #f3f0e8;
 
   --serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
   --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* 16px on every screen. */
   --body-size: 1rem;
   --measure: 36rem;
   --gutter: 1.25rem;
@@ -26,13 +21,14 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #15141a;
-    --text: #e8e5ee;
-    --muted: #9c97a8;
-    --accent: #b8a6ff;
-    --accent-soft: #312a50;
-    --border: #2a2832;
-    --code-bg: #1d1c23;
+    --bg: #121614;
+    --text: #e5e9e4;
+    --muted: #939b95;
+    --accent: #ff8b7b;
+    --accent-soft: #46231f;
+    --rind: #7cc39a;
+    --border: #252c28;
+    --code-bg: #1a201c;
   }
 }
 
@@ -54,7 +50,6 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* One column, same everywhere. Safe-area padding for the iPhone notch. */
 .wrap {
   max-width: calc(var(--measure) + 2 * var(--gutter));
   margin: 0 auto;
@@ -78,10 +73,7 @@ a:hover { color: var(--accent); }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-/* ---------------------------------------------------------------------------
-   The avatar: the little guy from the favicon peeks up once when the page
-   loads. That's the only animation on the site.
-   --------------------------------------------------------------------------- */
+/* Avatar */
 
 .avatar {
   display: block;
@@ -103,9 +95,7 @@ a:hover { color: var(--accent); }
   to { transform: translateY(0); }
 }
 
-/* ---------------------------------------------------------------------------
-   Top bar (post pages)
-   --------------------------------------------------------------------------- */
+/* Top bar (post pages) */
 
 .bar {
   display: flex;
@@ -120,9 +110,7 @@ a:hover { color: var(--accent); }
 .bar .name { font-weight: 600; }
 .bar .rss { margin-left: auto; color: var(--muted); font-size: 0.875rem; }
 
-/* ---------------------------------------------------------------------------
-   Home
-   --------------------------------------------------------------------------- */
+/* Home */
 
 .intro { padding-top: max(2.5rem, env(safe-area-inset-top)); }
 .intro .avatar { width: 3.25rem; margin-bottom: 1.25rem; }
@@ -152,7 +140,9 @@ a:hover { color: var(--accent); }
   border: 1px solid var(--border);
   border-radius: 999px;
   text-decoration: none;
+  transition: border-color 0.15s, background-color 0.15s;
 }
+.links a:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
 
 .writing { margin-top: 2.5rem; }
 
@@ -164,13 +154,12 @@ a:hover { color: var(--accent); }
   font-family: var(--mono);
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--rind);
 }
 .section-label::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 
 .posts { list-style: none; margin: 0; padding: 0; }
 
-/* Title on top, date underneath, on every screen. Big tap targets. */
 .posts a {
   display: block;
   padding: 0.6rem 0;
@@ -189,9 +178,7 @@ a:hover { color: var(--accent); }
 }
 .posts a:hover { color: var(--accent); }
 
-/* ---------------------------------------------------------------------------
-   Post
-   --------------------------------------------------------------------------- */
+/* Post */
 
 .post-head { padding-top: 2.5rem; margin-bottom: 2rem; }
 
@@ -213,7 +200,7 @@ a:hover { color: var(--accent); }
 .prose { overflow-wrap: break-word; }
 .prose > * { margin-top: 0; margin-bottom: 1.25em; }
 
-.prose h2, .prose h3, .prose h4 {
+.prose h1, .prose h2, .prose h3, .prose h4 {
   font-family: var(--sans);
   font-weight: 650;
   line-height: 1.3;
@@ -223,14 +210,15 @@ a:hover { color: var(--accent); }
   scroll-margin-top: 1.5rem;
   text-wrap: balance;
 }
-.prose h2 { font-size: 1.2em; }
+.prose h1 { font-size: 1.3em; }
+.prose h2 { font-size: 1.15em; }
 .prose h3 { font-size: 1.05em; }
 .prose h4 { font-size: 1em; }
 
 .prose ul, .prose ol { padding-left: 1.3em; }
 .prose li { margin-bottom: 0.35em; }
 .prose li > ul, .prose li > ol { margin-top: 0.35em; margin-bottom: 0; }
-.prose li::marker { color: var(--accent); }
+.prose li::marker { color: var(--rind); }
 
 .prose blockquote {
   margin-left: 0;
@@ -245,9 +233,9 @@ a:hover { color: var(--accent); }
   border: 0;
   margin: 2.5em 0;
   text-align: center;
-  color: var(--accent);
+  color: var(--rind);
 }
-.prose hr::after { content: "✦  ✦  ✦"; font-size: 0.8em; letter-spacing: 0.3em; }
+.prose hr::after { content: "●  ●  ●"; font-size: 0.5em; letter-spacing: 0.6em; }
 
 .prose code {
   font-family: var(--mono);
@@ -292,7 +280,7 @@ a:hover { color: var(--accent); }
 }
 @media (prefers-color-scheme: dark) {
   /* The images here are transparent PNGs with dark lines. */
-  .prose img { background: #f4f2f8; padding: 0.5rem; }
+  .prose img { background: #f3f0e8; padding: 0.5rem; }
 }
 
 .prose table {
@@ -314,11 +302,9 @@ a:hover { color: var(--accent); }
 
 .more { margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 0.5rem; }
 .more .section-label { margin-top: 1rem; }
-.more .section-label::after { content: none; } /* one line only: the end-of-post rule */
+.more .section-label::after { content: none; } /* .more already has the end-of-post rule */
 
-/* ---------------------------------------------------------------------------
-   Footer
-   --------------------------------------------------------------------------- */
+/* Footer */
 
 .foot {
   margin-top: 4rem;
