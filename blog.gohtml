@@ -19,6 +19,9 @@
   <link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="alternate" type="application/rss+xml" title="Melonlorrd's Blog" href="/rss.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap">
   <link rel="stylesheet" href="style.css?v={{ .CSSVersion }}">
 </head>
 
@@ -63,7 +66,7 @@
       mermaid.initialize({
         startOnLoad: false,
         theme: dark ? 'dark' : 'neutral',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontFamily: 'Lato, system-ui, -apple-system, sans-serif',
       });
       await mermaid.run({ querySelector: 'pre.mermaid' });
     }

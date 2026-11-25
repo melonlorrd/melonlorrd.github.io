@@ -8,8 +8,8 @@
   --border: #e7e3d9;
   --code-bg: #f3f0e8;
 
-  --serif: "Iowan Old Style", "Charter", "Bitstream Charter", "Sitka Text", Cambria, Georgia, serif;
-  --sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --serif: "Lato", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --sans: "Lato", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --body-size: 1rem;
@@ -151,7 +151,7 @@ a:hover { color: var(--accent); }
   align-items: center;
   gap: 0.75rem;
   margin: 2rem 0 0.25rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--rind);
@@ -172,7 +172,7 @@ a:hover { color: var(--accent); }
 .posts .m {
   display: block;
   margin-top: 0.2rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.8125rem;
   color: var(--muted);
 }
@@ -192,7 +192,7 @@ a:hover { color: var(--accent); }
 
 .meta {
   margin: 0;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.8125rem;
   color: var(--muted);
 }
@@ -202,7 +202,7 @@ a:hover { color: var(--accent); }
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
   font-family: var(--sans);
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.01em;
   margin-top: 2.25em;
@@ -274,7 +274,7 @@ a:hover { color: var(--accent); }
 .prose img { max-width: 100%; height: auto; border-radius: 8px; }
 .prose figcaption {
   margin-top: 0.4rem;
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.75rem;
   color: var(--muted);
 }
@@ -311,7 +311,7 @@ a:hover { color: var(--accent); }
   padding-top: 1.25rem;
   padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.75rem;
   line-height: 1.8;
   color: var(--muted);
